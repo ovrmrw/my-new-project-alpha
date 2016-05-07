@@ -1,0 +1,18 @@
+{
+  "version": false,
+  "dependencies": {
+    "falcor": "registry:npm/falcor#0.1.0+20160427193439",
+    "falcor-express": "registry:npm/falcor-express#0.1.0+20160427202253",
+    "falcor-router": "registry:npm/falcor-router#0.4.0+20160427212252",
+    "lodash": "registry:npm/lodash#4.0.0+20160416211519",
+    "request": "registry:npm/request#2.69.0+20160428223725"
+  },
+  "ambientDependencies": {
+    "body-parser": "registry:dt/body-parser#0.0.0+20160317120654",
+    "express": "registry:dt/express#4.0.0+20160317120654",
+    "jquery": "registry:dt/jquery#1.10.0+20160417213236",
+    "multer": "registry:dt/multer#0.0.0+20160317120654",
+    "node": "registry:dt/node#4.0.0+20160501135006",
+    "xml2js": "registry:dt/xml2js#0.0.0+20160317120654"
+  }
+}

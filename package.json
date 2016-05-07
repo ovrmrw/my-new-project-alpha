@@ -1,0 +1,68 @@
+{
+  "name": "my-new-project-alpha",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prestart": "npm run build:server",
+    "start": "concurrently \"npm run build:server:w\" \"npm run build:client:w\" \"npm run express\" ",
+    "build:server": "gulp compile",
+    "build:server:w": "gulp watch",
+    "build:client:w": "webpack --watch",
+    "build": "concurrently \"webpack\" \"gulp compile\" ",
+    "build:w": "concurrently \"webpack --watch\" \"gulp watch\" ",
+    "express": "concurrently \"node ./src-server/express.js\" \"gulp browsersync\" ",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://ovrmrw@github.com/ovrmrw/my-new-project-alpha.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ovrmrw/my-new-project-alpha/issues"
+  },
+  "homepage": "https://github.com/ovrmrw/my-new-project-alpha#readme",
+  "devDependencies": {
+    "babel-loader": "^6.2.4",
+    "babel-preset-es2015": "^6.6.0",
+    "browser-sync": "^2.12.5",
+    "concurrently": "^2.0.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-ignore": "^2.0.1",
+    "gulp-plumber": "^1.1.0",
+    "gulp-typescript": "^2.13.3",
+    "ts-loader": "^0.8.2",
+    "typescript": "^1.8.10",
+    "typings": "^0.8.1",
+    "webpack": "^1.13.0"
+  },
+  "dependencies": {
+    "@angular/common": "^2.0.0-rc.1",
+    "@angular/compiler": "^2.0.0-rc.1",
+    "@angular/core": "^2.0.0-rc.1",
+    "@angular/http": "^2.0.0-rc.1",
+    "@angular/platform-browser": "^2.0.0-rc.1",
+    "@angular/platform-browser-dynamic": "^2.0.0-rc.1",
+    "@angular/router": "^2.0.0-rc.1",
+    "@angular/router-deprecated": "^2.0.0-rc.1",
+    "babel-polyfill": "^6.8.0",
+    "body-parser": "^1.15.1",
+    "express": "^4.13.4",
+    "falcor": "^0.1.17",
+    "falcor-express": "^0.1.2",
+    "falcor-router": "^0.4.0",
+    "fs": "0.0.2",
+    "jade": "^1.11.0",
+    "jquery": "^2.2.3",
+    "lodash": "^4.11.2",
+    "multer": "^1.1.0",
+    "path": "^0.12.7",
+    "request": "^2.72.0",
+    "rxjs": "^5.0.0-beta.6",
+    "xml2js": "^0.4.16"
+  }
+}
