@@ -1,7 +1,6 @@
 /// <reference path="browser/ambient/body-parser/index.d.ts" />
 /// <reference path="browser/ambient/express/index.d.ts" />
 /// <reference path="browser/ambient/jquery/index.d.ts" />
-/// <reference path="browser/ambient/multer/index.d.ts" />
 /// <reference path="browser/ambient/node/index.d.ts" />
 /// <reference path="browser/ambient/xml2js/index.d.ts" />
 /// <reference path="browser/definitions/falcor-express/index.d.ts" />
