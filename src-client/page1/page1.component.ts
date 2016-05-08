@@ -1,29 +1,25 @@
 import { Component, Input, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Http, Request, Response, Headers, RequestOptions } from '@angular/http';
-import path from 'path';
+// import path from 'path';
 
-import {Dispatcher} from '../flux/flux-di';
-import {Container} from '../flux/flux-container';
+import {Container, Dispatcher} from '../flux/flux-container';
 import {Action, NextTranslate} from '../flux/flux-action';
-
-
-const appRoot = path.resolve(__dirname, '..');
-console.log('Application Root: ' + appRoot);
+import { appRoot } from '../../src-middle/utils';
 
 ///////////////////////////////////////////////////////////////////////////////////
-
+// Helper Components
 @Component({
   selector: 'my-name',
   template: `
-    <div><h3>{{text}}</h3></div>
+    <div><h3>{{translation | json}}</h3></div>
   `
 })
 class Name {
-  @Input() text: string;
+  @Input() translation: Translation;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
-
+// Main Component
 @Component({
   selector: 'my-page1',
   template: `
@@ -39,7 +35,7 @@ class Name {
     </div>
     <button (click)="onClick()">Translate</button>
     <hr />
-    <my-name [text]="translated"></my-name>
+    <my-name [translation]="translationByPush"></my-name>
   `,
   directives: [Name],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -48,7 +44,7 @@ export class AppPage1 {
   private text: string;
   private clientId: string;
   private clientSecret: string;
-  private translated: string;
+  private translationByPush: Translation;
 
   constructor(
     private http: Http,
@@ -57,27 +53,31 @@ export class AppPage1 {
     private container: Container
   ) { }
   ngOnInit() {
-    this.http.get(path.resolve(appRoot, 'azureDataMarket.secret.json'))
+    this.http.get(appRoot + 'azureDataMarket.secret.json')
       .map(res => res.json() as Credential)
       .subscribe(credential => {
         this.clientId = credential.ClientId;
         this.clientSecret = credential.ClientSecret;
         this.cd.markForCheck();
-        console.log(this.clientId, this.clientSecret);
       });
 
     this.container.state$
-      .map(appState => appState.translated)
+      .map(appState => appState.translation)
       .filter(state => state instanceof Promise)
       .subscribe(state => {
-        state.then(translated => {
-          this.translated = translated;
+        state.then(translation => {
+          this.translationByPush = translation;
           this.cd.markForCheck();
         });
       });
   }
 
   onClick() {
-    this.dispatcher$.next(new NextTranslate(this.text, this.clientId, this.clientSecret, this.http));
+    const translation: Translation = {
+      text: this.text,
+      clientId: this.clientId,
+      clientSecret: this.clientSecret
+    };
+    this.dispatcher$.next(new NextTranslate(translation, this.http));
   }
 }

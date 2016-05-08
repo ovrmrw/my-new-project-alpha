@@ -2,15 +2,9 @@ import lodash from 'lodash';
 import express from 'express';
 import path from 'path';
 import bodyParser from 'body-parser';
-import multer from 'multer';
 import falcorExpress from 'falcor-express'; // const falcorExpress = require('falcor-express');
-// import {MinimongoFalcorRouter} from '../src-middle/minimongo-falcor-router';
 import { translateAsync } from './translator';
-
-const upload = multer();
-
-const appRoot = path.resolve(__dirname, '..');
-console.log('Application Root: ' + appRoot);
+import { appRoot } from '../src-middle/utils';
 
 const app = express();
 app.set('views', appRoot + '/views');
@@ -42,21 +36,25 @@ app.use('/model.json', falcorExpress.dataSourceRoute((req, res) => {
   return null;
 }));
 
-app.post('/trans', (req, res) => {
-  console.log(req.body);
-  console.log(JSON.stringify(req.body));
+
+app.post('/translation', (req, res) => {
   if ('text' in req.body) {
-    const text = req.body.text;
-    const clientId = req.body.clientId;
-    const clientSecret = req.body.clientSecret;
-    translateAsync(text, clientId, clientSecret).then(translated => {
-      res.json({ result: translated });
-    });
+    let translation = req.body as Translation;
+    translateAsync(translation)
+      .then(obj => {
+        translation.translated = obj.translated;
+        translation.accessToken = obj.accessToken;
+        translation.clientId = translation.clientId.slice(0, 4) + '****';
+        translation.clientSecret = translation.clientSecret.slice(0, 4) + '****';
+        res.json({ result: translation });
+      })
+      .catch(err => {
+        res.json({ result: err });
+      });
   } else {
     res.json({ result: null });
   }
 });
-
 
 
 const port = 3000;

@@ -4,7 +4,8 @@ import {Router, Route, RouteConfig, ROUTER_DIRECTIVES} from '@angular/router-dep
 import {Location} from '@angular/common';
 import {AppPage1} from '../page1/page1.component';
 
-
+///////////////////////////////////////////////////////////////////////////////////
+// Top Component
 @Component({
   selector: 'my-app',
   template: `
@@ -26,16 +27,5 @@ export class App implements OnInit {
     private router: Router,
     private cd: ChangeDetectorRef
   ) { }
-  ngOnInit() {
-    // this.router.navigate(['/Page1']);
-    // this.cd.detectChanges();
-  }
-  // getLinkStyle(path: string): boolean {
-  //   if (path === this.location.path()) {
-  //     return true;
-  //   }
-  //   else if (path.length > 0) {
-  //     return this.location.path().indexOf(path) > -1;
-  //   }
-  // }
+  ngOnInit() { }
 }

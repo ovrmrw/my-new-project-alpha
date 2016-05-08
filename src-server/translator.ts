@@ -1,27 +1,13 @@
-/*
-  MicrosoftのTranslator APIを使ってText-to-Textの翻訳をするサンプル。
-  https://www.microsoft.com/en-us/translator
-  
-  es2015形式でJSにトランスパイルした後、babel-nodeで実行すると簡単です。
-  
-  Dependencies: request, xml2js, babel-polyfill
-*/
-
 import 'babel-polyfill'; // async/awaitを書くなら必要。
 import request from 'request';
 import {parseString} from 'xml2js';
-
-// interface Credential {
-//   ClientId: string;
-//   ClientSecret: string;
-// }
 
 const azureDataMarket: Credential = require('../azureDataMarket.secret.json'); // CliendIdとClientSecretを書いた設定ファイル。
 const azureDataMarketClientId = azureDataMarket.ClientId;
 const azureDataMarketClientSecret = azureDataMarket.ClientSecret;
 
 // 非同期処理を同期的に書くときはasync/awaitが書きやすい。
-export const translateAsync = async (text: string, clientId: string, clientSecret: string) => {
+export async function translateAsync(translation: Translation) {
   let accessToken: string;
 
   // AccessTokenを取得するまで。
@@ -34,8 +20,8 @@ export const translateAsync = async (text: string, clientId: string, clientSecre
           url: 'https://datamarket.accesscontrol.windows.net/v2/OAuth2-13',
           form: {
             grant_type: 'client_credentials',
-            client_id: clientId || azureDataMarketClientId,
-            client_secret: clientSecret || azureDataMarketClientSecret,
+            client_id: translation.clientId || azureDataMarketClientId,
+            client_secret: translation.clientSecret || azureDataMarketClientSecret,
             scope: 'http://api.microsofttranslator.com'
           }
         }, (err, res, body) => {
@@ -48,12 +34,14 @@ export const translateAsync = async (text: string, clientId: string, clientSecre
     console.log('Access Token: ' + accessToken + '\n');
   } catch (err) {
     console.error(err);
+    throw new Error(err);
   }
 
   // AccessTokenを取得してTranslateするまで。
   try {
     // 翻訳にかけたいテキスト。
     // const text = 'Introduction to data analysis with Python';
+    const text = translation.text;
 
     // request.getでbodyを取得する。accessTokenがないとエラーになる。awaitでPromiseを待機する。
     const body = await new Promise<string>((resolve, reject) => {
@@ -80,9 +68,10 @@ export const translateAsync = async (text: string, clientId: string, clientSecre
         resolve(result.string._);
       });
     });
-    console.log('Translated: ' + translated); // 翻訳結果の表示。
-    return translated;
+    console.log('Translated: ' + translated); // 翻訳結果の表示。    
+    return { accessToken, translated };
   } catch (err) {
     console.error(err);
+    throw new Error(err);
   }
 };
