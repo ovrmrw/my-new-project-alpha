@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {    
+    "postinstall": "typings install",
     "prestart": "npm run build",
     "start": "concurrently \"npm run build:server:w\" \"npm run build:client:w\" \"npm run express\" ",
     "build:server": "gulp compile",

@@ -42,10 +42,10 @@ gulp.task('watch', [], () => {
 /////////////////////////////////////////////////////////////////////////
 // EXPRESS
 
-gulp.task('browsersync', function () {
+gulp.task('browsersync', () => {
   browserSync.init({
     // files: ['src-{client,middle}/**/*.{js,css,jade,html,json}', 'bundles/**/*.js'], // BrowserSyncにまかせるファイル群
-    files: ['{./,}views/**/*.{js,css,jade,html}', '{./,}bundles/**/*.js'], // BrowserSyncにまかせるファイル群
+    files: ['views/**/*.{js,css,jade,html}', 'bundles/**/*.js'], // BrowserSyncにまかせるファイル群
     proxy: 'http://localhost:3000',  // express の動作するポートにプロキシ
     port: 4000,  // BrowserSync は 4000 番ポートで起動
     open: true,  // ブラウザ open する

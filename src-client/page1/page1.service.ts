@@ -7,8 +7,8 @@ export class AppPage1Service {
 
   getCredential(jsonPath: string) {
     return this.http.get(jsonPath)
-      .map(res => res.json() as Credential);
-      // .toPromise();
+      .map(res => res.json() as Credential)
+      .toPromise(); // Promiseにして返却しないとViewへの反映がきちんとされない。(OnPushだから?)
   }
 
   getTranslation(translation: Translation) {
@@ -17,7 +17,7 @@ export class AppPage1Service {
     let body = JSON.stringify(translation);
 
     return this.http.post('/translation', body, { headers: headers })
-      .map(res => res.json().result as Translation);
-      // .toPromise();
+      .map(res => res.json().result as Translation)
+      .toPromise(); // Promiseにして返却しないとViewへの反映がきちんとされない。(OnPushだから?)
   }
 }
