@@ -15,7 +15,7 @@ import * as types from '../app/types';
   `
 })
 class TranslationComponent {
-  @Input() translation: Translation;
+  @Input() translation: types.Translation;
 }
 
 @Component({
@@ -64,7 +64,7 @@ export class AppPage1Component implements OnInit {
   private text: string;
   private clientId: string;
   private clientSecret: string;
-  private translationByPush: Translation;
+  private translationByPush: types.Translation;
   private pairsByPush: LangPair[] = [];
 
   constructor(

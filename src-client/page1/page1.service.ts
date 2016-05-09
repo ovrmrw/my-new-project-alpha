@@ -11,18 +11,18 @@ export class AppPage1Service {
     console.log(types.Credential.name);
     console.log(types.Credential.prototype);
     return this.http.get(jsonPath)
-      .map(res => res.json() as Credential)
+      .map(res => res.json() as types.Credential)
       .do(data => this.store.setState(types.Credential, data))
       .toPromise(); // Promiseにして返却しないとViewへの反映がきちんとされない。(OnPushだから?)
   }
 
-  getTranslation(translation: Translation) {
+  getTranslation(translation: types.Translation) {
     let headers = new Headers();
     headers.append('Content-Type', 'application/json');
     let body = JSON.stringify(translation);
 
     return this.http.post('/translation', body, { headers: headers })
-      .map(res => res.json().result as Translation)
+      .map(res => res.json().result as types.Translation)
       .do(data => this.store.setState(types.Translation, data))
       .toPromise(); // Promiseにして返却しないとViewへの反映がきちんとされない。(OnPushだから?)
   }
