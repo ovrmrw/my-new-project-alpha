@@ -72,7 +72,7 @@ export class AppPage1Component implements OnInit {
   ) { }
   ngOnInit() {
     this.service.getCredential(appRoot + 'azureDataMarket.secret.json')
-      .then(credential => {
+      .subscribe(credential => {
         this.clientId = credential.ClientId;
         this.clientSecret = credential.ClientSecret;
         this.cd.markForCheck();
@@ -97,7 +97,7 @@ export class AppPage1Component implements OnInit {
     };
     // this.dispatcher$.next(new NextTranslate(translation, this.http));
     this.service.getTranslation(translation)
-      .then(translation => {
+      .subscribe(translation => {
         this.translationByPush = translation;
         this.pairsByPush.push({ original: translation.text, translated: translation.translated });
         this.cd.markForCheck();
