@@ -11,7 +11,7 @@
     "build:server:w": "gulp watch",
     "build:client": "webpack",
     "build:client:w": "webpack --watch",
-    "prebuild": "npm run tslint",
+    "prebuild": "",
     "build": "concurrently \"npm run build:client\" \"npm run build:server\" ",
     "build:w": "concurrently \"webpack --watch\" \"gulp watch\" ",
     "tslint": "tslint -c tslint.json src*/**/*.ts",

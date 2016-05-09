@@ -3,6 +3,7 @@ import {Router, Route, RouteConfig, ROUTER_DIRECTIVES} from '@angular/router-dep
 // import {Routes, Router, ROUTER_DIRECTIVES} from '@angular/router';
 import {Location} from '@angular/common';
 import {AppPage1Component} from '../page1/page1.component';
+import { Store } from './store';
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Top Component
@@ -17,6 +18,7 @@ import {AppPage1Component} from '../page1/page1.component';
     <router-outlet></router-outlet>
   `,
   directives: [AppPage1Component, ROUTER_DIRECTIVES],
+  providers: [Store],
   changeDetection: ChangeDetectionStrategy.Default
 })
 @RouteConfig([

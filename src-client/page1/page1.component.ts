@@ -4,6 +4,7 @@ import lodash from 'lodash';
 // import {Action, NextTranslate} from '../flux/flux-action';
 import { AppPage1Service } from './page1.service';
 import { appRoot } from '../../src-middle/utils';
+import * as types from '../app/types';
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Helper Components
@@ -52,6 +53,8 @@ class PairsComponent {
     <sg-translation [translation]="translationByPush"></sg-translation>
     <hr *ngIf="pairsByPush.length > 0" />
     <sg-pairs [pairs]="pairsByPush"></sg-pairs>
+    <hr />
+    <button (click)="getHistory()">History</button>
   `,
   directives: [TranslationComponent, PairsComponent],
   providers: [AppPage1Service],
@@ -102,6 +105,10 @@ export class AppPage1Component implements OnInit {
         this.pairsByPush.push({ original: translation.text, translated: translation.translated });
         this.cd.markForCheck();
       });
+  }
+
+  getHistory() {
+    console.log(this.service.getHistory(3));
   }
 }
 
