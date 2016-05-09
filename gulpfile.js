@@ -15,7 +15,7 @@ gulp.task('tscClient', () => {
   tsProject.src()
     .pipe(plumber())
     //.pipe(ignore.exclude(['src-server/**/*']))
-    .pipe(ignore.include(['src-client/**/*.ts']))
+    .pipe(ignore.include(['{./,}src-client/**/*.ts']))
     .pipe(ts(tsProject))
     // .pipe(babel())
     .pipe(gulp.dest('.'));
@@ -26,7 +26,7 @@ gulp.task('tscServer', () => {
   tsProject.src()
     .pipe(plumber())
     //.pipe(ignore.exclude(['src-server/**/*.ts']))
-    .pipe(ignore.include(['src-{server,middle}/**/*.ts']))
+    .pipe(ignore.include(['{./,}src-{server,middle}/**/*.ts']))
     .pipe(ts(tsProject))
     .pipe(babel())
     .pipe(gulp.dest('.'));
@@ -36,7 +36,7 @@ gulp.task('compile', ['tscServer']);
 
 gulp.task('watch', [], () => {
   // gulp.watch(['src-client/**/*.ts'], ['tscClient']);
-  gulp.watch(['src-{server,middle}/**/*.ts'], ['tscServer']);
+  gulp.watch(['{./,}src-{server,middle}/**/*.ts'], ['tscServer']);
 });
 
 /////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ gulp.task('watch', [], () => {
 gulp.task('browsersync', function () {
   browserSync.init({
     // files: ['src-{client,middle}/**/*.{js,css,jade,html,json}', 'bundles/**/*.js'], // BrowserSyncにまかせるファイル群
-    files: ['views/**/*.{js,css,jade,html}', 'bundles/**/*.js'], // BrowserSyncにまかせるファイル群
+    files: ['{./,}views/**/*.{js,css,jade,html}', '{./,}bundles/**/*.js'], // BrowserSyncにまかせるファイル群
     proxy: 'http://localhost:3000',  // express の動作するポートにプロキシ
     port: 4000,  // BrowserSync は 4000 番ポートで起動
     open: true,  // ブラウザ open する
