@@ -10,3 +10,10 @@ export class Credential {
   ClientId: string;
   ClientSecret: string;
 }
+
+export class AddState {
+  constructor(
+    public data: any,
+    public functionOrClass: Function = null
+  ) { }
+}

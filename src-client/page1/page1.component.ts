@@ -4,7 +4,7 @@ import lodash from 'lodash';
 // import {Action, NextTranslate} from '../flux/flux-action';
 import { AppPage1Service } from './page1.service';
 import { appRoot } from '../../src-middle/utils';
-import * as types from '../app/types';
+import { Credential, Translation } from '../app/types';
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Helper Components
@@ -15,7 +15,7 @@ import * as types from '../app/types';
   `
 })
 class TranslationComponent {
-  @Input() translation: types.Translation;
+  @Input() translation: Translation;
 }
 
 @Component({
@@ -54,7 +54,8 @@ class PairsComponent {
     <hr *ngIf="pairsByPush.length > 0" />
     <sg-pairs [pairs]="pairsByPush"></sg-pairs>
     <hr />
-    <button (click)="getHistory()">History</button>
+    <!--<button (click)="getHistory()">History</button>-->
+    <div><ul><li *ngFor="let h of history">{{h | json}}</li></ul></div>
   `,
   directives: [TranslationComponent, PairsComponent],
   providers: [AppPage1Service],
@@ -64,7 +65,7 @@ export class AppPage1Component implements OnInit {
   private text: string;
   private clientId: string;
   private clientSecret: string;
-  private translationByPush: types.Translation;
+  private translationByPush: Translation;
   private pairsByPush: LangPair[] = [];
 
   constructor(
@@ -93,13 +94,17 @@ export class AppPage1Component implements OnInit {
   }
 
   onClick() {
-    const translation: Translation = {
-      text: this.text,
-      clientId: this.clientId,
-      clientSecret: this.clientSecret
-    };
+    // const translation: Translation = {
+    //   text: this.text,
+    //   clientId: this.clientId,
+    //   clientSecret: this.clientSecret
+    // };
+    const t = new Translation();
+    t.text = this.text;
+    t.clientId = this.clientId;
+    t.clientSecret = this.clientSecret;    
     // this.dispatcher$.next(new NextTranslate(translation, this.http));
-    this.service.getTranslation(translation)
+    this.service.getTranslation(t)
       .then(translation => {
         this.translationByPush = translation;
         this.pairsByPush.push({ original: translation.text, translated: translation.translated });
@@ -107,8 +112,8 @@ export class AppPage1Component implements OnInit {
       });
   }
 
-  getHistory() {
-    console.log(this.service.getHistory(3));
+  get history() {
+    return this.service.getHistory(3);
   }
 }
 
