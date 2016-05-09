@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from '@angular/core';
 import lodash from 'lodash';
 // import {Container, Dispatcher} from '../flux/flux-container';
 // import {Action, NextTranslate} from '../flux/flux-action';
@@ -8,7 +8,7 @@ import { appRoot } from '../../src-middle/utils';
 ///////////////////////////////////////////////////////////////////////////////////
 // Helper Components
 @Component({
-  selector: 'my-translation',
+  selector: 'sg-translation',
   template: `
     <div>{{translation | json}}</div>
   `
@@ -18,7 +18,7 @@ class TranslationComponent {
 }
 
 @Component({
-  selector: 'my-pairs',
+  selector: 'sg-pairs',
   template: `
     <div><ul><li *ngFor="let pair of reversedPairs">{{pair.original}} -> {{pair.translated}}</li></ul></div>
   `
@@ -35,7 +35,7 @@ class PairsComponent {
 ///////////////////////////////////////////////////////////////////////////////////
 // Main Component
 @Component({
-  selector: 'my-page1',
+  selector: 'sg-page1',
   template: `
     <div>
       ClientId: <input type="text" [(ngModel)]="clientId" />
@@ -49,15 +49,15 @@ class PairsComponent {
     </div>
     <button (click)="onClick()">Translate</button>
     <hr *ngIf="translationByPush" />
-    <my-translation [translation]="translationByPush"></my-translation>
+    <sg-translation [translation]="translationByPush"></sg-translation>
     <hr *ngIf="pairsByPush.length > 0" />
-    <my-pairs [pairs]="pairsByPush"></my-pairs>
+    <sg-pairs [pairs]="pairsByPush"></sg-pairs>
   `,
   directives: [TranslationComponent, PairsComponent],
   providers: [AppPage1Service],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppPage1 {
+export class AppPage1Component implements OnInit {
   private text: string;
   private clientId: string;
   private clientSecret: string;

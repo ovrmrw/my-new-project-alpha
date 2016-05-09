@@ -7,7 +7,7 @@ import {ROUTER_PROVIDERS} from '@angular/router-deprecated';
 import {LocationStrategy, HashLocationStrategy} from '@angular/common';
 import { HTTP_PROVIDERS } from '@angular/http';
 import {bootstrap} from '@angular/platform-browser-dynamic';
-import {App} from './app/app';
+import {AppComponent} from './app/app';
 import {stateAndDispatcher} from './flux/flux-container';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/observable/timer';
@@ -20,7 +20,7 @@ import 'rxjs/add/operator/merge';
 import 'rxjs/add/operator/debounceTime';
 
 enableProdMode();
-bootstrap(App, [
+bootstrap(AppComponent, [
   HTTP_PROVIDERS,
   ROUTER_PROVIDERS,
   provide(LocationStrategy, { useClass: HashLocationStrategy }),

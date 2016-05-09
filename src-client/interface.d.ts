@@ -4,13 +4,13 @@ declare interface AppState {
 
 declare interface Credential {
   ClientId: string;
-  ClientSecret: string;  
+  ClientSecret: string;
 }
 
 declare interface Translation {
   text: string;
   clientId?: string;
-  clientSecret?: string;  
+  clientSecret?: string;
   accessToken?: string;
   translated?: string;
 }

@@ -26,7 +26,7 @@ export class Container {
         (translation) => {
           return {
             translation: translation
-          } as AppState
+          } as AppState;
         }
       )
       .debounceTime(1)
@@ -52,7 +52,7 @@ export class Dispatcher<T> extends Subject<T> {
 
 const initState: AppState = {
   translation: null
-}
+};
 
 export const stateAndDispatcher = [
   bind('initState').toValue(initState),

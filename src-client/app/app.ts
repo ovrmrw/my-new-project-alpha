@@ -2,12 +2,12 @@ import {Component, ChangeDetectionStrategy, OnInit, ChangeDetectorRef} from '@an
 import {Router, Route, RouteConfig, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
 // import {Routes, Router, ROUTER_DIRECTIVES} from '@angular/router';
 import {Location} from '@angular/common';
-import {AppPage1} from '../page1/page1.component';
+import {AppPage1Component} from '../page1/page1.component';
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Top Component
 @Component({
-  selector: 'my-app',
+  selector: 'sg-app',
   template: `
     <nav>
       <ul>
@@ -16,13 +16,13 @@ import {AppPage1} from '../page1/page1.component';
     </nav>
     <router-outlet></router-outlet>
   `,
-  directives: [AppPage1, ROUTER_DIRECTIVES],
+  directives: [AppPage1Component, ROUTER_DIRECTIVES],
   changeDetection: ChangeDetectionStrategy.Default
 })
 @RouteConfig([
-  new Route({ path: 'p1', component: AppPage1, name: 'Page1', useAsDefault: true }),
+  new Route({ path: 'p1', component: AppPage1Component, name: 'Page1', useAsDefault: true }),
 ])
-export class App implements OnInit {
+export class AppComponent implements OnInit {
   constructor(
     private router: Router,
     private cd: ChangeDetectorRef

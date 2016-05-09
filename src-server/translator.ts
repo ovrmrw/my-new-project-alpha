@@ -2,9 +2,13 @@ import 'babel-polyfill'; // async/awaitを書くなら必要。
 import request from 'request';
 import {parseString} from 'xml2js';
 
-const azureDataMarket: Credential = require('../azureDataMarket.secret.json'); // CliendIdとClientSecretを書いた設定ファイル。
-const azureDataMarketClientId = azureDataMarket.ClientId;
-const azureDataMarketClientSecret = azureDataMarket.ClientSecret;
+let azureDataMarketClientId: string;
+let azureDataMarketClientSecret: string;
+try {
+  const azureDataMarket: Credential = require('../azureDataMarket.secret.json'); // CliendIdとClientSecretを書いた設定ファイル。
+  azureDataMarketClientId = azureDataMarket.ClientId;
+  azureDataMarketClientSecret = azureDataMarket.ClientSecret;
+} catch (err) { }
 
 // 非同期処理を同期的に書くときはasync/awaitが書きやすい。
 export async function translateAsync(translation: Translation) {
@@ -25,7 +29,7 @@ export async function translateAsync(translation: Translation) {
             scope: 'http://api.microsofttranslator.com'
           }
         }, (err, res, body) => {
-          if (err) { reject(err) }
+          if (err) { reject(err); }
           resolve(body);
         });
     });
@@ -53,7 +57,7 @@ export async function translateAsync(translation: Translation) {
             'Authorization': 'Bearer ' + accessToken
           }
         }, (err, res, body) => {
-          if (err) { reject(err) }
+          if (err) { reject(err); }
           resolve(body);
         });
     });
@@ -61,7 +65,7 @@ export async function translateAsync(translation: Translation) {
     // 取得したbodyはXMLなのでパースする必要がある。awaitでPromiseを待機する。
     const translated = await new Promise<string>((resolve, reject) => {
       parseString(body, (err, result) => {
-        if (err) { reject(err) }
+        if (err) { reject(err); }
         console.log(body + '\n↓ parsing XML to JS object');
         console.log(result);
         console.log('\n');

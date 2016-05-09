@@ -16,9 +16,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // CORS on Express (http://enable-cors.org/server_expressjs.html)
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, Content-Length");
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Content-Length');
   next();
 });
 
@@ -58,7 +58,7 @@ app.post('/translation', (req, res) => {
 
 
 const port = 3000;
-const host = 'localhost'
+const host = 'localhost';
 app.listen(port, host);
 console.log('Express server listening at http://%s:%s', host, port);
 export {host, port}

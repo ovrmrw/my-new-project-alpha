@@ -1,13 +1,13 @@
 import { Pipe, PipeTransform, ChangeDetectorRef, OnDestroy, OnInit } from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {Subscription} from 'rxjs/Subscription'
-import {Subject}from'rxjs/Subject'
+import {Subscription} from 'rxjs/Subscription';
+import {Subject}from'rxjs/Subject';
 import 'rxjs/add/observable/from';
 // import 'rxjs/add/observable/scan'
 import 'rxjs/add/operator/scan';
 
 @Pipe({
-  name: 'dc',
+  name: 'sgDc',
   pure: true
 })
 export class DetectChangesPipe implements PipeTransform {
@@ -31,7 +31,7 @@ export class DetectChangesPipe implements PipeTransform {
 
     setTimeout(() => {
       this.cd.detectChanges();
-    }, 100)
+    }, 100);
     return value;
   }
   constructor(private cd: ChangeDetectorRef) { }
