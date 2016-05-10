@@ -19,15 +19,9 @@ import { Store } from './store';
   `,
   directives: [AppPage1Component, ROUTER_DIRECTIVES],
   providers: [Store],
-  changeDetection: ChangeDetectionStrategy.Default
+  // changeDetection: ChangeDetectionStrategy.Default
 })
 @RouteConfig([
   new Route({ path: 'p1', component: AppPage1Component, name: 'Page1', useAsDefault: true }),
 ])
-export class AppComponent implements OnInit {
-  constructor(
-    private router: Router,
-    private cd: ChangeDetectorRef
-  ) { }
-  ngOnInit() { }
-}
+export class AppComponent { }

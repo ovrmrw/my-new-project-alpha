@@ -1,10 +1,10 @@
-import { Component, Input, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, EventEmitter } from '@angular/core';
 import lodash from 'lodash';
 // import {Container, Dispatcher} from '../flux/flux-container';
 // import {Action, NextTranslate} from '../flux/flux-action';
 import { AppPage1Service } from './page1.service';
 import { appRoot } from '../../src-middle/utils';
-import { Credential, Translation } from '../app/types';
+import { Credential, Translation } from '../../src-middle/types';
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Helper Components
@@ -48,18 +48,21 @@ class PairsComponent {
     <div>
       翻訳したい日本語: <input type="text" [(ngModel)]="text" />
     </div>
-    <button (click)="onClick()">Translate</button>
+    <button (click)="onClick($event)">Translate</button>
     <hr *ngIf="translationByPush" />
     <sg-translation [translation]="translationByPush"></sg-translation>
     <hr *ngIf="pairsByPush.length > 0" />
     <sg-pairs [pairs]="pairsByPush"></sg-pairs>
     <hr />
     <!--<button (click)="getHistory()">History</button>-->
-    <div><ul><li *ngFor="let h of history">{{h | json}}</li></ul></div>
+    <div>
+      <ul><li *ngFor="let h of history">{{h | json}}</li></ul>
+    </div>
+    {{history | json}}
   `,
   directives: [TranslationComponent, PairsComponent],
   providers: [AppPage1Service],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  // changeDetection: ChangeDetectionStrategy.Default
 })
 export class AppPage1Component implements OnInit {
   private text: string;
@@ -67,54 +70,48 @@ export class AppPage1Component implements OnInit {
   private clientSecret: string;
   private translationByPush: Translation;
   private pairsByPush: LangPair[] = [];
+  private history: Translation[];
 
   constructor(
     private service: AppPage1Service,
     private cd: ChangeDetectorRef
-    // private dispatcher$: Dispatcher<Action>,
-    // private container: Container,
   ) { }
   ngOnInit() {
-    this.service.getCredential(appRoot + 'azureDataMarket.secret.json')
-      .then(credential => {
+    this.service.getCredential$(appRoot + 'azureDataMarket.secret.json')
+      .subscribe(credential => {
         this.clientId = credential.ClientId;
         this.clientSecret = credential.ClientSecret;
-        this.cd.markForCheck();
+        // this.cd.markForCheck();
+        console.log('getCredential$')
+        // this.cd.detectChanges();
       });
 
-    // this.container.state$
-    //   .map(appState => appState.translation)
-    //   .filter(state => state instanceof Promise)
-    //   .subscribe(state => {
-    //     state.then(translation => {
-    //       this.translationByPush = translation;
-    //       this.cd.markForCheck();
-    //     });
-    //   });
+    this.service.getTranslationHistory$(3)
+      .subscribe(history => {
+        this.history = history;
+        // this.cd.markForCheck();
+      });
   }
 
-  onClick() {
-    // const translation: Translation = {
-    //   text: this.text,
-    //   clientId: this.clientId,
-    //   clientSecret: this.clientSecret
-    // };
-    const t = new Translation();
-    t.text = this.text;
-    t.clientId = this.clientId;
-    t.clientSecret = this.clientSecret;    
+  onClick(event: MouseEvent) {
     // this.dispatcher$.next(new NextTranslate(translation, this.http));
-    this.service.getTranslation(t)
-      .then(translation => {
+    this.service.getTranslation$(this.text, this.clientId, this.clientSecret)
+      .subscribe(translation => {
         this.translationByPush = translation;
         this.pairsByPush.push({ original: translation.text, translated: translation.translated });
-        this.cd.markForCheck();
+        // this.cd.markForCheck();
+        this.cd.detectChanges();
+        console.log('getTranslation$')
       });
   }
 
-  get history() {
-    return this.service.getHistory(3);
-  }
+  // get history() {
+  //   // this.service.getHistory$(3).subscribe(states => console.log(states));
+  //   return this.service.getTranslationHistory$(3).do(states => {
+  //     console.log('get history');
+  //     console.log(states);
+  //   });
+  // }
 }
 
 

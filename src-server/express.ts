@@ -5,6 +5,7 @@ import bodyParser from 'body-parser';
 import falcorExpress from 'falcor-express'; // const falcorExpress = require('falcor-express');
 import { translateAsync } from './translator';
 import { appRoot } from '../src-middle/utils';
+import { ITranslation } from '../src-middle/types';
 
 const app = express();
 app.set('views', appRoot + '/views');
@@ -39,14 +40,14 @@ app.use('/model.json', falcorExpress.dataSourceRoute((req, res) => {
 
 app.post('/translation', (req, res) => {
   if ('text' in req.body) {
-    let translation = req.body as Translation;
-    translateAsync(translation)
-      .then(obj => {
-        translation.translated = obj.translated;
-        translation.accessToken = obj.accessToken;
-        translation.clientId = translation.clientId.slice(0, 4) + '****';
-        translation.clientSecret = translation.clientSecret.slice(0, 4) + '****';
-        res.json({ result: translation });
+    let t = req.body as ITranslation;
+    translateAsync(t.text, t.clientId, t.clientSecret)
+      .then(data => {
+        t.translated = data.translated;
+        t.accessToken = data.accessToken;
+        t.clientId = t.clientId.slice(0, 4) + '****';
+        t.clientSecret = t.clientSecret.slice(0, 4) + '****';
+        res.json({ result: t });
       })
       .catch(err => {
         res.json({ result: err });

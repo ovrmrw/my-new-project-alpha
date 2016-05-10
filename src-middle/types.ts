@@ -11,9 +11,10 @@ export class Credential {
   ClientSecret: string;
 }
 
-export class AddState {
-  constructor(
-    public data: any,
-    public functionOrClass: Function = null
-  ) { }
+export interface ITranslation {
+  text: string;
+  clientId?: string;
+  clientSecret?: string;
+  accessToken?: string;
+  translated?: string;
 }

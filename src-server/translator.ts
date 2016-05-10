@@ -11,7 +11,7 @@ try {
 } catch (err) { }
 
 // 非同期処理を同期的に書くときはasync/awaitが書きやすい。
-export async function translateAsync(translation: Translation) {
+export async function translateAsync(text: string, clientId: string, clientSecret: string) {
   let accessToken: string;
 
   // AccessTokenを取得するまで。
@@ -24,8 +24,8 @@ export async function translateAsync(translation: Translation) {
           url: 'https://datamarket.accesscontrol.windows.net/v2/OAuth2-13',
           form: {
             grant_type: 'client_credentials',
-            client_id: translation.clientId || azureDataMarketClientId,
-            client_secret: translation.clientSecret || azureDataMarketClientSecret,
+            client_id: clientId || azureDataMarketClientId,
+            client_secret: clientSecret || azureDataMarketClientSecret,
             scope: 'http://api.microsofttranslator.com'
           }
         }, (err, res, body) => {
@@ -44,8 +44,7 @@ export async function translateAsync(translation: Translation) {
   // AccessTokenを取得してTranslateするまで。
   try {
     // 翻訳にかけたいテキスト。
-    // const text = 'Introduction to data analysis with Python';
-    const text = translation.text;
+    // const text = 'Introduction to data analysis with Python';    
 
     // request.getでbodyを取得する。accessTokenがないとエラーになる。awaitでPromiseを待機する。
     const body = await new Promise<string>((resolve, reject) => {
