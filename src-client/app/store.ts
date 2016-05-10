@@ -2,7 +2,11 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/observable/from';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/do';
 import lodash from 'lodash';
 
 type ClassOrString = Function | string;
@@ -17,12 +21,15 @@ export class AddState {
 @Injectable()
 export class Store {
   private states: any[] = [];
-  private _dispatcher$ = new Subject<AddState>(null);
-  private _returner$ = new Subject<any[]>(null);
+  private _dispatcher$: Subject<AddState>;
+  private _returner$: Subject<any[]>;
 
   constructor() {
+    this._dispatcher$ = new Subject<AddState>(null);
+    this._returner$ = new BehaviorSubject([]);
+
     this._dispatcher$
-      .subscribe((action: AddState) => {
+      .subscribe(action => {
         this.setState(action.data, action.classOrString);
         this._returner$.next(this.states);
       });
@@ -32,9 +39,10 @@ export class Store {
     return this._dispatcher$ as Observer<AddState>;
   }
 
-  get states$() {
-    return Observable.from(this.states) as Observable<any[]>;
-  }
+  // get states$() {
+  //   // 配列を[]で囲んでfromに入れないと、配列そのものをストリームに流すことができない。
+  //   return Observable.from([this.states]) as Observable<any[]>;
+  // }
 
   // 配列としてStatesを取得する。
   getStates<T>(classOrString: ClassOrString, limit: number = 1): T[] {
@@ -48,7 +56,12 @@ export class Store {
     if (states.length > 0) {
       return states.reverse().slice(0, limit) as T[];
     }
-    return null;
+    return [];
+  }
+
+  getState<T>(classOrString: ClassOrString): T {
+    const ary = this.getStates<T>(classOrString);
+    return (ary && ary.length > 0 ? ary[0] : null) as T;
   }
 
   // ObservableとしてStatesを取得する。
@@ -63,23 +76,21 @@ export class Store {
           }
         });
       })
+      .map(states => {
+        return states.reverse().slice(0, limit) as T[];
+      })
       .do(states => {
         console.log('getSates$');
-        console.log(states);
-      })
-      .map(states => {
-        // let ary = states.reverse().slice(0, limit);
-        // if (ary.length === 0) {
-        //   return [null];
-        // } else {
-          return states.reverse().slice(0, limit) as T[];
-        // }
       });
-    // const states = this.getStates(classOrString, limit) || [];
-
-    // console.log(states);
-    // return Observable.from([states]) as Observable<T[]>; // 配列を[]で囲んで渡さないと配列そのものをストリームに流すことはできない。
   }
+
+  getState$<T>(classOrString: ClassOrString): Observable<T> {
+    return this.getStates$<T>(classOrString)
+      .map(states => {
+        return (states.length > 0 ? states[0] : null) as T;
+      });
+  }
+
 
   // dataのクラス名をキーとしてStateを登録する。functionOrClassが与えられていればそちらのクラス名を優先して適用する。
   private setState(data: any, classOrString?: ClassOrString) {

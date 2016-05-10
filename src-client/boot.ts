@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////
 // Entry Point
 
+import 'zone.js/dist/zone';
+import 'reflect-metadata';
 import {provide, enableProdMode} from '@angular/core';
 // import {ROUTER_PROVIDERS} from '@angular/router';
 import {ROUTER_PROVIDERS} from '@angular/router-deprecated';

@@ -25,7 +25,10 @@ export class AppPage1Service {
   }
 
   getTranslationHistory$(limit?: number) {
-    return this.store.getStates$<Translation>(Translation, limit)
-      .do(() => console.log('getTranslationHistory$'));
+    return this.store.getStates$<Translation>(Translation, limit);    
+  }
+  
+  getTranslationHistory(limit?: number) {
+    return this.store.getStates<Translation>(Translation, limit);    
   }
 }

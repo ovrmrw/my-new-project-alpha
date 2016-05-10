@@ -32,6 +32,16 @@ class PairsComponent {
   }
 }
 
+@Component({
+  selector: 'sg-history',
+  template: `
+    <div><ul><li *ngFor="let h of history">{{h | json}}</li></ul></div>
+  `
+})
+class HistoryComponent {
+  @Input() history: Translation[];
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Main Component
@@ -54,24 +64,18 @@ class PairsComponent {
     <hr *ngIf="pairsByPush.length > 0" />
     <sg-pairs [pairs]="pairsByPush"></sg-pairs>
     <hr />
-    <!--<button (click)="getHistory()">History</button>-->
-    <div>
-      <ul><li *ngFor="let h of history">{{h | json}}</li></ul>
-    </div>
-    {{history | json}}
+    <sg-history [history]="historyByPush"></sg-history>
+    <div>HISTORY2: {{history2 | json}}</div>
   `,
-  directives: [TranslationComponent, PairsComponent],
+  directives: [TranslationComponent, PairsComponent, HistoryComponent],
   providers: [AppPage1Service],
-  // changeDetection: ChangeDetectionStrategy.Default
+  // changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppPage1Component implements OnInit {
   private text: string;
   private clientId: string;
   private clientSecret: string;
-  private translationByPush: Translation;
-  private pairsByPush: LangPair[] = [];
-  private history: Translation[];
-
+  
   constructor(
     private service: AppPage1Service,
     private cd: ChangeDetectorRef
@@ -81,15 +85,12 @@ export class AppPage1Component implements OnInit {
       .subscribe(credential => {
         this.clientId = credential.ClientId;
         this.clientSecret = credential.ClientSecret;
-        // this.cd.markForCheck();
-        console.log('getCredential$')
-        // this.cd.detectChanges();
+        console.log('getCredential$');
       });
 
     this.service.getTranslationHistory$(3)
       .subscribe(history => {
-        this.history = history;
-        // this.cd.markForCheck();
+        this.historyByPush = history;
       });
   }
 
@@ -99,8 +100,6 @@ export class AppPage1Component implements OnInit {
       .subscribe(translation => {
         this.translationByPush = translation;
         this.pairsByPush.push({ original: translation.text, translated: translation.translated });
-        // this.cd.markForCheck();
-        this.cd.detectChanges();
         console.log('getTranslation$')
       });
   }
@@ -110,8 +109,18 @@ export class AppPage1Component implements OnInit {
   //   return this.service.getTranslationHistory$(3).do(states => {
   //     console.log('get history');
   //     console.log(states);
+  //     // this.cd.markForCheck();      
   //   });
+  //   // return thiranslationHistory$(3).map(states => states);
   // }
+  get history2(){
+    return this.service.getTranslationHistory();
+  }
+  
+  // Observableにより更新される変数なので勝手に変更しないこと。
+  private translationByPush: Translation;
+  private pairsByPush: LangPair[] = [];
+  private historyByPush: Translation[];
 }
 
 
