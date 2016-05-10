@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
-import { Store, AddState } from '../app/store';
+import { Store } from '../app/store';
 import { Credential, Translation, ITranslation } from '../../src-middle/types';
 
 @Injectable()
@@ -10,8 +10,8 @@ export class AppPage1Service {
   getCredential$(jsonPath: string) {
     return this.http.get(jsonPath)
       .map(res => res.json() as Credential)
-      .do(data => this.store.dispatcher$.next(new AddState(data, Credential)));
-      // .toPromise(); // HttpのレスポンスはPromiseにして返却しないとViewへの反映がきちんとされない？(OnPushだから？)
+      .do(data => this.store.setState(data, Credential, this, 'a', Injectable, this.store));
+    // .toPromise(); // HttpのレスポンスはPromiseにして返却しないとViewへの反映がきちんとされない？(OnPushだから？)
   }
 
   getTranslation$(text: string, clientId: string, clientSecret: string) {
@@ -20,15 +20,15 @@ export class AppPage1Service {
 
     return this.http.post('/translation', body, { headers: headers })
       .map(res => res.json().result as Translation)
-      .do(data => this.store.dispatcher$.next(new AddState(data, Translation)));
-      // .toPromise(); // HttpのレスポンスはPromiseにして返却しないとViewへの反映がきちんとされない？(OnPushだから？)
+      .do(data => this.store.setState(data, Translation, this, 'a', Injectable, this.store));
+    // .toPromise(); // HttpのレスポンスはPromiseにして返却しないとViewへの反映がきちんとされない？(OnPushだから？)
   }
 
   getTranslationHistory$(limit?: number) {
-    return this.store.getStates$<Translation>(Translation, limit);    
+    return this.store.getStates$<Translation>(limit, Translation, this, 'a', Injectable, this.store);
   }
-  
+
   getTranslationHistory(limit?: number) {
-    return this.store.getStates<Translation>(Translation, limit);    
+    return this.store.getStates<Translation>(limit, Translation, this, 'a', Injectable, this.store);
   }
 }

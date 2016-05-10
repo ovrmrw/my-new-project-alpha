@@ -88,7 +88,7 @@ export class AppPage1Component implements OnInit {
         console.log('getCredential$');
       });
 
-    this.service.getTranslationHistory$(3)
+    this.service.getTranslationHistory$()
       .subscribe(history => {
         this.historyByPush = history;
       });
