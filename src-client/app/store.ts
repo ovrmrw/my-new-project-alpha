@@ -30,7 +30,7 @@ export class Store {
     this._returner$ = new BehaviorSubject([]);
 
     this._dispatcher$
-      // .debounceTime(100) // ここにdebounceTimeを入れると全てmarkForCheckが必要になる。
+      // .debounceTime(100) // ここにdebounceTimeを入れると全てmarkForCheckが必要になる。Viewまで含めて途端に扱いが難しくなる。
       .subscribe(newState => {
         this.states.push(newState);
         this.states = gabageCollecter(this.states);
