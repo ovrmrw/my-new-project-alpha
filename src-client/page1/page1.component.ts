@@ -1,7 +1,5 @@
-import { Component, Input, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, EventEmitter } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
 import lodash from 'lodash';
-// import {Container, Dispatcher} from '../flux/flux-container';
-// import {Action, NextTranslate} from '../flux/flux-action';
 import { AppPage1Service } from './page1.service';
 import { appRoot } from '../../src-middle/utils';
 import { Credential, Translation } from '../../src-middle/types';
@@ -66,34 +64,38 @@ class HistoryComponent {
     <sg-pairs [pairs]="pairsByPush"></sg-pairs>
     <hr />
     <sg-history [history]="historyByPush"></sg-history>
-    <div>HISTORY2: {{history2 | json}}</div>
   `,
   directives: [TranslationComponent, PairsComponent, HistoryComponent],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppPage1Component implements OnInit {
+  private static afterRegister: boolean;
   private clientId: string;
   private clientSecret: string;
 
   constructor(
     private service: AppPage1Service,
     private cd: ChangeDetectorRef
-  ) { }
-  ngOnInit() {
-    this.service.requestCredential$(appRoot + 'azureDataMarket.secret.json')
+  ) { 
+    this.service.disposeSubscriptions(); // ngOnInit前に、登録済みのsubscriptionを全て破棄する。
+  }
+  ngOnInit() {    
+    this.service.disposableSubscription = this.service.requestCredential$(appRoot + 'azureDataMarket.secret.json')
       .subscribe(credential => {
         this.clientId = credential.ClientId;
         this.clientSecret = credential.ClientSecret;
         this.cd.markForCheck();
-        console.log('getCredential$');
       });
 
-    this.service.getTranslations$()
-      .subscribe(history => this.historyByPush = history);
-
-    this.service.getTitles$(3).subscribe(titles => {
-      console.log('DETECT: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page1');
-    });
+    this.service.disposableSubscription = this.service.getTranslations$(3)
+      .subscribe(translations => {
+        console.log('DETECT: ' + (translations.length > 2 ? translations[2].translated : undefined) + ' -> ' + (translations.length > 1 ? translations[1].translated : undefined) + ' -> ' + (translations.length > 0 ? translations[0].translated : undefined) + ' on Page1');
+        this.historyByPush = translations;
+      });
+      
+    this.service.disposableSubscription = this.service.getTitles$(3).subscribe(titles => {
+        console.log('DETECT: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page1');
+      });
   }
 
   onClick(event: MouseEvent) {
@@ -111,18 +113,6 @@ export class AppPage1Component implements OnInit {
   get text() { return this.service.getText(); }
 
   get title() { return this.service.getTitle(); }
-
-  // get history() {
-  //   // this.service.getHistory$(3).subscribe(states => console.log(states));
-  //   return this.service.getTranslationHistory$(3).do(states => {
-  //     console.log('get history');
-  //     console.log(states);
-  //     // this.cd.markForCheck();      
-  //   });
-  //   // return thiranslationHistory$(3).map(states => states);
-  // }
-  get history2() { return this.service.getTranslations(); }
-
 
   // Observableにより更新される変数なので勝手に変更しないこと。
   private translationByPush: Translation;
