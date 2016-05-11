@@ -7,11 +7,12 @@ import 'rxjs/add/observable/from';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/do';
+import 'rxjs/add/operator/debounceTime';
 import lodash from 'lodash';
 
 type ClassOrString = Function | string;
 
-class AddState {
+class State {
   constructor(
     public data: any,
     public propertyName: string
@@ -25,10 +26,11 @@ export class Store {
   private _returner$: Subject<any[]>;
 
   constructor() {
-    this._dispatcher$ = new Subject<AddState>(null);
+    this._dispatcher$ = new Subject<State>(null);
     this._returner$ = new BehaviorSubject([]);
 
     this._dispatcher$
+      .debounceTime(100)
       .subscribe(newState => {
         this.states.push(newState);
         console.log(this.states);
@@ -48,26 +50,32 @@ export class Store {
   // 配列としてStatesを取得する。
   getStates<T>(limit: number, classOrString: ClassOrString, ...prefixes: (ClassOrString | Object)[]): T[] {
     const propertyName = mergeName(null, classOrString, ...prefixes);
-    const states = this.states.filter(state => {
-      if (propertyName in state) {
-        return state;
-      }
-      // if (typeof classOrString === 'string' && classOrString in state) {
-      //   return state;
-      // } else if (typeof classOrString === 'function' && classOrString.name in state) {
-      //   return state;
-      // }
-    });
+    const states = this.states
+      .filter(state => propertyName in state)
+      .map(state => {
+        try {
+          return lodash.values(state)[0];
+        } catch (err) {
+          return state;
+        }
+      });
     if (states.length > 0) {
       const _limit = limit && limit > 0 ? limit : 1;
-      return states.reverse().slice(0, _limit) as T[];
+      return states.reverse().slice(0, _limit);
+    } else {
+      return [];
     }
-    return [];
   }
 
   getState<T>(classOrString: ClassOrString, ...prefixes: (ClassOrString | Object)[]): T {
     const ary = this.getStates<T>(1, classOrString, ...prefixes);
-    return (ary && ary.length > 0 ? ary[0] : null) as T;
+    const state = ary && ary.length > 0 ? ary[0] : null;
+    return state;
+    // try {
+    //   return lodash.values(state)[0] as T;
+    // } catch (err) {
+    //   return state as T;
+    // }
   }
 
   // ObservableとしてStatesを取得する。
@@ -75,8 +83,13 @@ export class Store {
     const propertyName = mergeName(null, classOrString, ...prefixes);
     return this._returner$
       .map(states => {
-        return states.filter(state => {
-          if (propertyName in state) {
+        return states.filter(state => propertyName in state);
+      })
+      .map(states => {
+        return states.map(state => {
+          try {
+            return lodash.values(state)[0];
+          } catch (err) {
             return state;
           }
         });
@@ -95,6 +108,13 @@ export class Store {
       .map(states => {
         return (states.length > 0 ? states[0] : null) as T;
       });
+      // .map(state => {
+      //   try {
+      //     return lodash.values(state)[0] as T;
+      //   } catch (err) {
+      //     return state as T;
+      //   }
+      // });
   }
 
 
@@ -121,11 +141,11 @@ export class Store {
 function mergeName(data?: any, classOrString?: ClassOrString, ...prefixes: (ClassOrString | Object)[]): string {
   let propertyName: string = '';
 
-  if (typeof classOrString === 'string') {
+  if (classOrString && typeof classOrString === 'string') {
     propertyName += classOrString;
-  } else if (typeof classOrString === 'function') {
+  } else if (classOrString && typeof classOrString === 'function') {
     propertyName += classOrString.name;
-  } else if (typeof classOrString === 'object') {
+  } else if (classOrString && typeof classOrString === 'object') {
     propertyName += classOrString.constructor.name;
   } else {
     propertyName += data.constructor.name;

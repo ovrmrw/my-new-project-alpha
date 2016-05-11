@@ -48,6 +48,7 @@ class HistoryComponent {
 @Component({
   selector: 'sg-page1',
   template: `
+    <h3>{{title}} - PAGE1</h3>
     <div>
       ClientId: <input type="text" [(ngModel)]="clientId" />
     </div>
@@ -68,41 +69,48 @@ class HistoryComponent {
     <div>HISTORY2: {{history2 | json}}</div>
   `,
   directives: [TranslationComponent, PairsComponent, HistoryComponent],
-  providers: [AppPage1Service],
-  // changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppPage1Component implements OnInit {
-  private text: string;
+  // private text: string;
   private clientId: string;
   private clientSecret: string;
-  
+
   constructor(
     private service: AppPage1Service,
     private cd: ChangeDetectorRef
   ) { }
   ngOnInit() {
-    this.service.getCredential$(appRoot + 'azureDataMarket.secret.json')
+    this.service.requestCredential$(appRoot + 'azureDataMarket.secret.json')
       .subscribe(credential => {
         this.clientId = credential.ClientId;
         this.clientSecret = credential.ClientSecret;
+        this.cd.markForCheck();
         console.log('getCredential$');
       });
 
-    this.service.getTranslationHistory$()
-      .subscribe(history => {
-        this.historyByPush = history;
-      });
+    this.service.getTranslations$()
+      .subscribe(history => this.historyByPush = history);
+
+    // this.service.getTitle$()
+    //   .subscribe(title => this.titleByPush = title);
   }
 
   onClick(event: MouseEvent) {
     // this.dispatcher$.next(new NextTranslate(translation, this.http));
-    this.service.getTranslation$(this.text, this.clientId, this.clientSecret)
+    this.service.requestTranslation$(this.text, this.clientId, this.clientSecret)
       .subscribe(translation => {
         this.translationByPush = translation;
         this.pairsByPush.push({ original: translation.text, translated: translation.translated });
-        console.log('getTranslation$')
+        this.cd.markForCheck();
+        console.log('getTranslation$');
       });
   }
+
+  set text(text) { this.service.setText(text); }
+  get text() { return this.service.getText(); }
+
+  get title() { return this.service.getTitle(); }
 
   // get history() {
   //   // this.service.getHistory$(3).subscribe(states => console.log(states));
@@ -113,14 +121,16 @@ export class AppPage1Component implements OnInit {
   //   });
   //   // return thiranslationHistory$(3).map(states => states);
   // }
-  get history2(){
-    return this.service.getTranslationHistory();
+  get history2() {
+    return this.service.getTranslations();
   }
-  
+
+
   // Observableにより更新される変数なので勝手に変更しないこと。
   private translationByPush: Translation;
   private pairsByPush: LangPair[] = [];
   private historyByPush: Translation[];
+  // private titleByPush: string;
 }
 
 
