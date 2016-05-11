@@ -121,9 +121,7 @@ export class AppPage1Component implements OnInit {
   //   });
   //   // return thiranslationHistory$(3).map(states => states);
   // }
-  get history2() {
-    return this.service.getTranslations();
-  }
+  get history2() { return this.service.getTranslations(); }
 
 
   // Observableにより更新される変数なので勝手に変更しないこと。

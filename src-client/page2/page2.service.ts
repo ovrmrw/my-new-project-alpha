@@ -9,14 +9,7 @@ export class AppPage2Service {
     private store: Store
   ) { }
 
-  setTitle(title: string) {
-    this.store.setState(title, TITLE, this);
-  }
-
-  getTitle() {
-    return this.store.getState<string>(TITLE, this);
-  }
-  getTitle$() {
-    return this.store.getState$<string>(TITLE, this);
-  }
+  setTitle(title: string) { this.store.setState(title, TITLE, this); }
+  getTitle() { return this.store.getState<string>(TITLE, this); }
+  getTitle$() { return this.store.getState$<string>(TITLE, this); }
 }

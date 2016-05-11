@@ -30,22 +30,31 @@ export class Store {
     this._returner$ = new BehaviorSubject([]);
 
     this._dispatcher$
-      .debounceTime(100)
+      // .debounceTime(100) // ここにdebounceTimeを入れると全てmarkForCheckが必要になる。
       .subscribe(newState => {
         this.states.push(newState);
+        this.states = gabageCollecter(this.states);
         console.log(this.states);
         this._returner$.next(this.states);
       });
   }
 
-  // get dispatcher$() {
-  //   return this._dispatcher$ as Observer<AddState>;
-  // }
-
-  // get states$() {
-  //   // 配列を[]で囲んでfromに入れないと、配列そのものをストリームに流すことができない。
-  //   return Observable.from([this.states]) as Observable<any[]>;
-  // }
+  // dataのクラス名をキーとしてStateを登録する。functionOrClassが与えられていればそちらのクラス名を優先して適用する。
+  setState(data: any, classOrString?: ClassOrString, ...prefixes: (ClassOrString | Object)[]) {
+    console.log('setState');
+    console.log(this.constructor.name);
+    const propertyName = mergeName(data, classOrString, ...prefixes);
+    // if (typeof classOrString === 'string') {
+    //   propertyName = classOrString;
+    // } else if (typeof classOrString === 'function') {
+    //   propertyName = classOrString.name;
+    // } else {
+    //   propertyName = data.constructor.name;
+    // }
+    let obj = {};
+    obj[propertyName] = lodash.cloneDeep(data);
+    this._dispatcher$.next(obj);
+  }
 
   // 配列としてStatesを取得する。
   getStates<T>(limit: number, classOrString: ClassOrString, ...prefixes: (ClassOrString | Object)[]): T[] {
@@ -71,11 +80,6 @@ export class Store {
     const ary = this.getStates<T>(1, classOrString, ...prefixes);
     const state = ary && ary.length > 0 ? ary[0] : null;
     return state;
-    // try {
-    //   return lodash.values(state)[0] as T;
-    // } catch (err) {
-    //   return state as T;
-    // }
   }
 
   // ObservableとしてStatesを取得する。
@@ -108,32 +112,22 @@ export class Store {
       .map(states => {
         return (states.length > 0 ? states[0] : null) as T;
       });
-      // .map(state => {
-      //   try {
-      //     return lodash.values(state)[0] as T;
-      //   } catch (err) {
-      //     return state as T;
-      //   }
-      // });
+    // .map(state => {
+    //   try {
+    //     return lodash.values(state)[0] as T;
+    //   } catch (err) {
+    //     return state as T;
+    //   }
+    // });
   }
 
 
-  // dataのクラス名をキーとしてStateを登録する。functionOrClassが与えられていればそちらのクラス名を優先して適用する。
-  setState(data: any, classOrString?: ClassOrString, ...prefixes: (ClassOrString | Object)[]) {
-    console.log('setState');
-    console.log(this.constructor.name);
-    const propertyName = mergeName(data, classOrString, ...prefixes);
-    // if (typeof classOrString === 'string') {
-    //   propertyName = classOrString;
-    // } else if (typeof classOrString === 'function') {
-    //   propertyName = classOrString.name;
-    // } else {
-    //   propertyName = data.constructor.name;
-    // }
-    let obj = {};
-    obj[propertyName] = lodash.cloneDeep(data);
-    this._dispatcher$.next(obj);
-  }
+}
+
+// TODO: Implement
+function gabageCollecter(array: any[]) {
+  // const uniqKeys = lodash.uniq
+  return array;
 }
 
 

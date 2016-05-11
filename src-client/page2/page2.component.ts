@@ -29,14 +29,10 @@ export class AppPage2Component implements OnInit {
     // this._title = this.service.getTitle(); // ページ遷移入時、StateをViewに戻す。
     this.service.getTitle$().subscribe(title => {
       this._title = title;
-      this.cd.markForCheck();
+      // this.cd.markForCheck();
     });
   }
 
-  set title(title: string) {
-    this.service.setTitle(title);
-  }
-  get title() {
-    return this.service.getTitle();
-  }
+  set title(title: string) { this.service.setTitle(title); }
+  get title() { return this.service.getTitle(); }
 }
