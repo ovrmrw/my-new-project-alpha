@@ -19,18 +19,14 @@ import { Credential, Translation } from '../../src-middle/types';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppPage2Component implements OnInit {
-  // private _title: string;
-
   constructor(
     private service: AppPage2Service,
     private cd: ChangeDetectorRef
   ) { }
   ngOnInit() {
-    // this._title = this.service.getTitle(); // ページ遷移入時、StateをViewに戻す。
-    // this.service.getTitle$().subscribe(title => {
-    //   this._title = title;
-      // this.cd.markForCheck();
-    // });
+    this.service.getTitles$(3).subscribe(titles => {
+      console.log('DETECT: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page2');
+    });
   }
 
   set title(title: string) { this.service.setTitle(title); }

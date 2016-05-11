@@ -72,7 +72,6 @@ class HistoryComponent {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppPage1Component implements OnInit {
-  // private text: string;
   private clientId: string;
   private clientSecret: string;
 
@@ -92,8 +91,9 @@ export class AppPage1Component implements OnInit {
     this.service.getTranslations$()
       .subscribe(history => this.historyByPush = history);
 
-    // this.service.getTitle$()
-    //   .subscribe(title => this.titleByPush = title);
+    this.service.getTitles$(3).subscribe(titles => {
+      console.log('DETECT: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page1');
+    });
   }
 
   onClick(event: MouseEvent) {
@@ -128,7 +128,6 @@ export class AppPage1Component implements OnInit {
   private translationByPush: Translation;
   private pairsByPush: LangPair[] = [];
   private historyByPush: Translation[];
-  // private titleByPush: string;
 }
 
 

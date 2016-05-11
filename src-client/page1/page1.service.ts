@@ -37,6 +37,6 @@ export class AppPage1Service {
   setText(text: string) { this.store.setState(text, TRANSLATION_TEXT, this); }
   getText() { return this.store.getState<string>(TRANSLATION_TEXT, this); }
 
-  getTitle$() { return this.page2service.getTitle$(); }
+  getTitles$(limit?: number) { return this.page2service.getTitles$(limit); }
   getTitle() { return this.page2service.getTitle(); }
 }

@@ -44,13 +44,6 @@ export class Store {
     console.log('setState');
     console.log(this.constructor.name);
     const propertyName = mergeName(data, classOrString, ...prefixes);
-    // if (typeof classOrString === 'string') {
-    //   propertyName = classOrString;
-    // } else if (typeof classOrString === 'function') {
-    //   propertyName = classOrString.name;
-    // } else {
-    //   propertyName = data.constructor.name;
-    // }
     let obj = {};
     obj[propertyName] = lodash.cloneDeep(data);
     this._dispatcher$.next(obj);
