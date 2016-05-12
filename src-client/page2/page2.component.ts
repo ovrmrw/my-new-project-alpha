@@ -30,7 +30,7 @@ export class AppPage2Component implements OnInit {
   ngOnInit() {
     this.service.disposableSubscription = this.service.getTitles$(3)
       .subscribe(titles => {
-        console.log('DETECT: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page2');
+        console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page2');
       });
   }
 

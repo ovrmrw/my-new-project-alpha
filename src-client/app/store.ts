@@ -28,31 +28,25 @@ export class Store {
       // .debounceTime(100) // ここにdebounceTimeを入れると全てmarkForCheckが必要になる。Viewまで含めて途端に扱いが難しくなる。
       .subscribe(newState => {
         this.states.push(newState);
-        this.states = gabageCollecter(this.states);
-        console.log('↓ states array of Store ↓');
+        this.states = gabageCollector(this.states);
+        console.log('↓ states array on Store ↓');
         console.log(this.states);
         this._returner$.next(this.states);
       });
   }
 
   setState(data: any, nameablesAsIdentifier: Nameable[]): void {
-    const propertyName = mergeName(nameablesAsIdentifier);
+    const identifier = generateIdentifier(nameablesAsIdentifier);
     let obj = {};
-    obj[propertyName] = lodash.cloneDeep(data);
+    obj[identifier] = lodash.cloneDeep(data);
     this._dispatcher$.next(obj);
   }
 
   getStates<T>(limit: number, nameablesAsIdentifier: Nameable[]): T[] {
-    const propertyName = mergeName(nameablesAsIdentifier);
+    const identifier = generateIdentifier(nameablesAsIdentifier);
     const states = this.states
-      .filter(obj => propertyName in obj)
-      .map(obj => {
-        try {
-          return lodash.values(obj)[0];
-        } catch (err) {
-          return obj;
-        }
-      });
+      .filter(obj => obj && identifier in obj)
+      .map(obj => pickValueFromObject(obj));
     if (states.length > 0) {
       const _limit = limit && limit > 0 ? limit : 1;
       return states.reverse().slice(0, _limit) as T[];
@@ -68,19 +62,13 @@ export class Store {
   }
 
   getStates$<T>(limit: number, nameablesAsIdentifier: Nameable[]): Observable<T[]> {
-    const propertyName = mergeName(nameablesAsIdentifier);
+    const identifier = generateIdentifier(nameablesAsIdentifier);
     return this._returner$
       .map(objs => {
-        return objs.filter(state => propertyName in state);
+        return objs.filter(obj => obj && identifier in obj);
       })
       .map(objs => {
-        return objs.map(state => {
-          try {
-            return lodash.values(state)[0];
-          } catch (err) {
-            return state;
-          }
-        });
+        return objs.map(obj => pickValueFromObject(obj));
       })
       .map(states => {
         const _limit = limit && limit > 0 ? limit : 1;
@@ -91,40 +79,45 @@ export class Store {
   getState$<T>(nameablesAsIdentifier: Nameable[]): Observable<T> {
     return this.getStates$<T>(1, nameablesAsIdentifier)
       .map(states => {
-        return (states.length > 0 ? states[0] : null) as T;
+        return (states.length > 0 ? states[0] : null);
       });
   }
 
   setDisposableSubscription(subscription: Subscription, nameablesAsIdentifier: Nameable[]): void {
-    const propertyName = mergeName(nameablesAsIdentifier);
+    const identifier = generateIdentifier(nameablesAsIdentifier);
     let obj = {};
-    obj[propertyName] = subscription;
+    obj[identifier] = subscription;
     this.subscriptions.push(obj);
   }
 
   disposeSubscriptions(nameablesAsIdentifier: Nameable[]): void {
-    const propertyName = mergeName(nameablesAsIdentifier);
-    this.subscriptions
-      .filter(obj => propertyName in obj)
-      .map(obj => {
-        try {
-          return lodash.values(obj)[0] as Subscription;
-        } catch (err) {
-          return obj as Subscription;
-        }
-      })
+    const identifier = generateIdentifier(nameablesAsIdentifier);
+    this.subscriptions      
+      .filter(obj => obj && identifier in obj)
+      .map(obj => pickValueFromObject(obj))
       .forEach(subscription => {
         subscription.unsubscribe();
       });
+    const aliveSubscriptions = this.subscriptions
+      .filter(obj => {
+        const subscription = pickValueFromObject(obj);
+        if (subscription && !subscription.isUnsubscribed) {
+          return true;
+        }
+      });
+    this.subscriptions = null;
+    this.subscriptions = aliveSubscriptions;
+    console.log('↓ subscriptions array on Store ↓');
+    console.log(this.subscriptions);
   }
 }
 
 // TODO: Implement
-function gabageCollecter(array: any[]) {
+function gabageCollector(array: any[]) {
   return array;
 }
 
-function mergeName(nameables: Nameable[]): string {
+function generateIdentifier(nameables: Nameable[]): string {
   let ary: string[] = [];
 
   nameables.reduce((p: string[], nameable) => {
@@ -141,4 +134,12 @@ function mergeName(nameables: Nameable[]): string {
   }, ary);
 
   return ary.join('_');
+}
+
+function pickValueFromObject<T>(obj: { string?: T }): T {
+  try {
+    return lodash.values(obj)[0] as T;
+  } catch (err) {
+    // return obj as T;
+  }
 }

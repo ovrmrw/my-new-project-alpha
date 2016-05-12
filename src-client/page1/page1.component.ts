@@ -33,11 +33,11 @@ class PairsComponent {
 @Component({
   selector: 'sg-history',
   template: `
-    <div><ul><li *ngFor="let h of history">{{h | json}}</li></ul></div>
+    <div><ul><li *ngFor="let t of translations">{{t | json}}</li></ul></div>
   `
 })
 class HistoryComponent {
-  @Input() history: Translation[];
+  @Input() translations: Translation[];
 }
 
 
@@ -63,7 +63,7 @@ class HistoryComponent {
     <hr *ngIf="pairsByPush.length > 0" />
     <sg-pairs [pairs]="pairsByPush"></sg-pairs>
     <hr />
-    <sg-history [history]="historyByPush"></sg-history>
+    <sg-history [translations]="historyByPush"></sg-history>
   `,
   directives: [TranslationComponent, PairsComponent, HistoryComponent],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -76,36 +76,35 @@ export class AppPage1Component implements OnInit {
   constructor(
     private service: AppPage1Service,
     private cd: ChangeDetectorRef
-  ) { 
+  ) {
     this.service.disposeSubscriptions(); // ngOnInit前に、登録済みのsubscriptionを全て破棄する。
   }
-  ngOnInit() {    
+  ngOnInit() {
     this.service.disposableSubscription = this.service.requestCredential$(appRoot + 'azureDataMarket.secret.json')
       .subscribe(credential => {
         this.clientId = credential.ClientId;
         this.clientSecret = credential.ClientSecret;
-        this.cd.markForCheck();
+        this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
       });
 
     this.service.disposableSubscription = this.service.getTranslations$(3)
       .subscribe(translations => {
-        console.log('DETECT: ' + (translations.length > 2 ? translations[2].translated : undefined) + ' -> ' + (translations.length > 1 ? translations[1].translated : undefined) + ' -> ' + (translations.length > 0 ? translations[0].translated : undefined) + ' on Page1');
+        console.log('DetectChange: ' + (translations.length > 2 ? translations[2].translated : undefined) + ' -> ' + (translations.length > 1 ? translations[1].translated : undefined) + ' -> ' + (translations.length > 0 ? translations[0].translated : undefined) + ' on Page1');
         this.historyByPush = translations;
       });
-      
-    this.service.disposableSubscription = this.service.getTitles$(3).subscribe(titles => {
-        console.log('DETECT: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page1');
+
+    this.service.disposableSubscription = this.service.getTitles$(3)
+      .subscribe(titles => {
+        console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page1');
       });
   }
 
   onClick(event: MouseEvent) {
-    // this.dispatcher$.next(new NextTranslate(translation, this.http));
     this.service.requestTranslation$(this.text, this.clientId, this.clientSecret)
       .subscribe(translation => {
         this.translationByPush = translation;
         this.pairsByPush.push({ original: translation.text, translated: translation.translated });
-        this.cd.markForCheck();
-        console.log('getTranslation$');
+        this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
       });
   }
 
