@@ -76,10 +76,13 @@ export class AppPage1Component implements OnInit {
   constructor(
     private service: AppPage1Service,
     private cd: ChangeDetectorRef
-  ) {
-    this.service.disposeSubscriptions(); // ngOnInit前に、登録済みのsubscriptionを全て破棄する。
-  }
+  ) {  }
   ngOnInit() {
+    this.service.disposeSubscriptions(); // registerSubscriptionsの前に、登録済みのsubscriptionを全て破棄する。
+    this.registerSubscriptions();
+  }
+
+  registerSubscriptions() {
     this.service.disposableSubscription = this.service.requestCredential$(appRoot + 'azureDataMarket.secret.json')
       .subscribe(credential => {
         this.clientId = credential.ClientId;

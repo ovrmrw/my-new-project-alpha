@@ -90,9 +90,9 @@ export class Store {
     this.subscriptions.push(obj);
   }
 
-  disposeSubscriptions(nameablesAsIdentifier: Nameable[]): void {
+  disposeSubscriptions(nameablesAsIdentifier: Nameable[] = [this]): void {
     const identifier = generateIdentifier(nameablesAsIdentifier);
-    this.subscriptions      
+    this.subscriptions
       .filter(obj => obj && identifier in obj)
       .map(obj => pickValueFromObject(obj))
       .forEach(subscription => {

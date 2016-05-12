@@ -1,19 +1,18 @@
 import { Injectable } from '@angular/core';
-import { Subscription } from 'rxjs/Subscription';
 import { Store } from '../app/store';
+import { StoreService } from '../app/store.service';
 
-export const TITLE = 'title';
+const TITLE = 'title';
 
 @Injectable()
-export class AppPage2Service {
+export class AppPage2Service extends StoreService {
   constructor(
-    private store: Store
-  ) { }
+    store: Store
+  ) {
+    super(store);
+  }
 
   setTitle(title: string) { this.store.setState(title, [TITLE, this]); }
   getTitle() { return this.store.getState<string>([TITLE, this]); }
   getTitles$(limit?: number) { return this.store.getStates$<string>(limit, [TITLE, this]).debounceTime(10); }
-  
-  set disposableSubscription(subscription: Subscription) { this.store.setDisposableSubscription(subscription, [this]); }
-  disposeSubscriptions() { this.store.disposeSubscriptions([this]); }
 }
