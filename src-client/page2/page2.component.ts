@@ -14,6 +14,7 @@ import { ComponentGuidelineUsingStore } from '../app/store.interface';
     <div>
       Title: <input type="text" [(ngModel)]="title" />
     </div>
+    <ul><li *ngFor="let t of translations">{{t | json}}</li></ul>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -45,4 +46,6 @@ export class AppPage2Component implements OnInit, ComponentGuidelineUsingStore {
 
   set title(title: string) { this.service.setTitle(title); }
   get title() { return this.service.getTitle(); }
+
+  get translations() { return this.service.getTranslations(3); }
 }

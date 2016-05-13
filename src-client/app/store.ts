@@ -12,13 +12,15 @@ import 'rxjs/add/operator/debounceTime';
 import lodash from 'lodash';
 
 type Nameable = Function | Object | string;
+type StateObject = { string?: any };
+type SubscriptionObject = { string?: Subscription };
 
 @Injectable()
 export class Store {
-  private states: { string?: any }[] = [];
-  private subscriptions: { string?: Subscription }[] = [];
+  private states: StateObject[] = [];
+  private subscriptions: SubscriptionObject[] = [];
   private _dispatcher$: Subject<any>;
-  private _returner$: Subject<{ string?: any }[]>;
+  private _returner$: Subject<StateObject[]>;
 
   constructor() {
     this._dispatcher$ = new Subject<any>(null);
@@ -115,7 +117,7 @@ export class Store {
 }
 
 // TODO: Implement
-function gabageCollector(array: any[]) {
+function gabageCollector(array: StateObject[]) {
   return array;
 }
 
@@ -130,7 +132,7 @@ function generateIdentifier(nameables: Nameable[]): string {
     } else if (nameable && typeof nameable === 'object') {
       p.push(nameable.constructor.name);
     } else {
-      p.push('$');
+      p.push('###');
     }
     return p;
   }, ary);

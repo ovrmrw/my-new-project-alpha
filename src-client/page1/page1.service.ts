@@ -5,7 +5,7 @@ import 'rxjs/add/operator/do';
 import { Store } from '../app/store';
 // import { StoreService } from '../app/store.service';
 import { Credential, Translation, ITranslation } from '../../src-middle/types';
-import { AppPage2Service } from '../page2/page2.service';
+import { AppPage2Service, TITLE } from '../page2/page2.service';
 
 const TRANSLATION_TEXT = 'translation-text';
 
@@ -13,8 +13,7 @@ const TRANSLATION_TEXT = 'translation-text';
 export class AppPage1Service {
   constructor(
     private store: Store,
-    private http: Http,
-    private page2service: AppPage2Service
+    private http: Http
   ) { }
 
   requestCredential$(jsonPath: string) {
@@ -31,13 +30,24 @@ export class AppPage1Service {
       .map(res => res.json().result as Translation)
       .do(data => this.store.setState(data, [Translation, this]));
   }
-
-  getTranslations$(limit?: number) { return this.store.getStates$<Translation>(limit, [Translation, this]); }
+  
   getTranslations(limit?: number) { return this.store.getStates<Translation>(limit, [Translation, this]); }
+  getTranslations$(limit?: number) { return this.store.getStates$<Translation>(limit, [Translation, this]); }
 
   setText(text: string) { this.store.setState(text, [TRANSLATION_TEXT, this]); }
   getText() { return this.store.getState<string>([TRANSLATION_TEXT, this]); }
 
-  getTitles$(limit?: number) { return this.page2service.getTitles$(limit); }
-  getTitle() { return this.page2service.getTitle(); }
+  // Page2のServiceがセットした値を取得する。  
+  getTitle() { return this.store.getState<string>([TITLE, AppPage2Service]); }
+  getTitles$(limit?: number) { return this.store.getStates$<string>(limit, [TITLE, AppPage2Service]); }
 }
+
+// @Injectable()
+// export class AppPage1ServiceRef2 {
+//   constructor(
+//     private page2service: AppPage2Service
+//   ) { }
+
+//   getTitles$(limit?: number) { return this.page2service.getTitles$(limit); }
+//   getTitle() { return this.page2service.getTitle(); }
+// }
