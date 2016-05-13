@@ -1,4 +1,12 @@
-export class Translation {
+export interface ITranslation {
+  text: string;
+  clientId?: string;
+  clientSecret?: string;
+  accessToken?: string;
+  translated?: string;
+}
+
+export class Translation implements ITranslation {
   text: string;
   clientId: string;
   clientSecret: string;
@@ -9,12 +17,4 @@ export class Translation {
 export class Credential {
   ClientId: string;
   ClientSecret: string;
-}
-
-export interface ITranslation {
-  text: string;
-  clientId?: string;
-  clientSecret?: string;
-  accessToken?: string;
-  translated?: string;
 }

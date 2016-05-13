@@ -6,10 +6,10 @@ export class StoreService {
     protected store: Store
   ) { }
 
-  set disposableSubscription(subscription: Subscription) { 
-    this.store.setDisposableSubscription(subscription, [this]); 
+  set disposableSubscription(subscription: Subscription) {
+    this.store.setDisposableSubscription(subscription, [this]);
   }
-  disposeSubscriptions() { 
-    this.store.disposeSubscriptions([this]); 
+  disposeSubscriptions() {
+    this.store.disposeSubscriptions([this]);
   }
 }

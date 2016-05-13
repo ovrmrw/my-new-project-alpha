@@ -84,11 +84,10 @@ export class AppPage1Component implements OnInit, ComponentGuidelineUsingStore {
     this.registerSubscriptionsOnlyOnce(); // 最初にページ遷移入したときだけsubscriptionを作成する。
   }
 
-  // registerSubscriptionsEverytime() { }
   registerSubscriptionsEverytime() {
     // this.service.disposableSubscription = this.service.requestCredential$(appRoot + 'azureDataMarket.secret.json')
     this.service.requestCredential$(appRoot + 'azureDataMarket.secret.json')
-      .subscribe(credential => {
+      .subscribe(credential => { // Httpモジュールから流れるストリームをsubscribeしたときは一度nextしたら自動的にcompleteされる。
         this.clientId = credential.ClientId;
         this.clientSecret = credential.ClientSecret;
         this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
@@ -115,7 +114,7 @@ export class AppPage1Component implements OnInit, ComponentGuidelineUsingStore {
 
   onClick(event: MouseEvent) {
     this.service.requestTranslation$(this.text, this.clientId, this.clientSecret)
-      .subscribe(translation => {
+      .subscribe(translation => { // Httpモジュールから流れるストリームをsubscribeしたときは一度nextしたら自動的にcompleteされる。
         this.translationByPush = translation;
         this.pairsByPush.push({ original: translation.text, translated: translation.translated });
         this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
