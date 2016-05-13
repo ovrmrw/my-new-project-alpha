@@ -3,6 +3,7 @@ import lodash from 'lodash';
 import { AppPage2Service } from './page2.service';
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/do';
+import { ComponentGuidelineUsingStore } from '../app/store.interface';
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Main Component
@@ -16,7 +17,7 @@ import 'rxjs/add/operator/do';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppPage2Component implements OnInit {
+export class AppPage2Component implements OnInit, ComponentGuidelineUsingStore {
   private static isSubscriptionsRegistered: boolean;
 
   constructor(
@@ -25,8 +26,11 @@ export class AppPage2Component implements OnInit {
   ) { }
   ngOnInit() {
     // this.service.disposeSubscriptions(); // registerSubscriptionsの前に、登録済みのsubscriptionを全て破棄する。
+    this.registerSubscriptionsEverytime(); // ページ遷移入の度にsubscriptionを作成する。
     this.registerSubscriptionsOnlyOnce(); // 最初にページ遷移入したときだけsubscriptionを作成する。
   }
+
+  registerSubscriptionsEverytime() { }
 
   registerSubscriptionsOnlyOnce() {
     if (!AppPage2Component.isSubscriptionsRegistered) {

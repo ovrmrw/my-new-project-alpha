@@ -3,6 +3,7 @@ import lodash from 'lodash';
 import { AppPage1Service } from './page1.service';
 import { appRoot } from '../../src-middle/utils';
 import { Credential, Translation } from '../../src-middle/types';
+import { ComponentGuidelineUsingStore } from '../app/store.interface';
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Helper Components
@@ -68,7 +69,7 @@ class HistoryComponent {
   directives: [TranslationComponent, PairsComponent, HistoryComponent],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppPage1Component implements OnInit {
+export class AppPage1Component implements OnInit, ComponentGuidelineUsingStore {
   private static isSubscriptionsRegistered: boolean;
   private clientId: string;
   private clientSecret: string;
@@ -83,6 +84,7 @@ export class AppPage1Component implements OnInit {
     this.registerSubscriptionsOnlyOnce(); // 最初にページ遷移入したときだけsubscriptionを作成する。
   }
 
+  // registerSubscriptionsEverytime() { }
   registerSubscriptionsEverytime() {
     // this.service.disposableSubscription = this.service.requestCredential$(appRoot + 'azureDataMarket.secret.json')
     this.service.requestCredential$(appRoot + 'azureDataMarket.secret.json')
