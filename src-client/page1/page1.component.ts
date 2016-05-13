@@ -69,37 +69,46 @@ class HistoryComponent {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppPage1Component implements OnInit {
-  private static afterRegister: boolean;
+  private static isSubscriptionsRegistered: boolean;
   private clientId: string;
   private clientSecret: string;
 
   constructor(
     private service: AppPage1Service,
     private cd: ChangeDetectorRef
-  ) {  }
+  ) { }
   ngOnInit() {
-    this.service.disposeSubscriptions(); // registerSubscriptionsの前に、登録済みのsubscriptionを全て破棄する。
-    this.registerSubscriptions();
+    // this.service.disposeSubscriptions(); // registerSubscriptionsの前に、登録済みのsubscriptionを全て破棄する。
+    this.registerSubscriptionsEverytime(); // ページ遷移入の度にsubscriptionを作成する。
+    this.registerSubscriptionsOnlyOnce(); // 最初にページ遷移入したときだけsubscriptionを作成する。
   }
 
-  registerSubscriptions() {
-    this.service.disposableSubscription = this.service.requestCredential$(appRoot + 'azureDataMarket.secret.json')
+  registerSubscriptionsEverytime() {
+    // this.service.disposableSubscription = this.service.requestCredential$(appRoot + 'azureDataMarket.secret.json')
+    this.service.requestCredential$(appRoot + 'azureDataMarket.secret.json')
       .subscribe(credential => {
         this.clientId = credential.ClientId;
         this.clientSecret = credential.ClientSecret;
         this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
       });
+  }
 
-    this.service.disposableSubscription = this.service.getTranslations$(3)
-      .subscribe(translations => {
-        console.log('DetectChange: ' + (translations.length > 2 ? translations[2].translated : undefined) + ' -> ' + (translations.length > 1 ? translations[1].translated : undefined) + ' -> ' + (translations.length > 0 ? translations[0].translated : undefined) + ' on Page1');
-        this.historyByPush = translations;
-      });
+  registerSubscriptionsOnlyOnce() {
+    if (!AppPage1Component.isSubscriptionsRegistered) {
+      // this.service.disposableSubscription = this.service.getTranslations$(3)
+      this.service.getTranslations$(3)
+        .subscribe(translations => {
+          console.log('DetectChange: ' + (translations.length > 2 ? translations[2].translated : undefined) + ' -> ' + (translations.length > 1 ? translations[1].translated : undefined) + ' -> ' + (translations.length > 0 ? translations[0].translated : undefined) + ' on Page1');
+          this.historyByPush = translations;
+        });
 
-    this.service.disposableSubscription = this.service.getTitles$(3)
-      .subscribe(titles => {
-        console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page1');
-      });
+      // this.service.disposableSubscription = this.service.getTitles$(3)
+      this.service.getTitles$(3)
+        .subscribe(titles => {
+          console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page1');
+        });
+    }
+    AppPage1Component.isSubscriptionsRegistered = true;
   }
 
   onClick(event: MouseEvent) {

@@ -83,6 +83,7 @@ export class Store {
       });
   }
 
+  // DEPRECATED
   setDisposableSubscription(subscription: Subscription, nameablesAsIdentifier: Nameable[]): void {
     const identifier = generateIdentifier(nameablesAsIdentifier);
     let obj = {};
@@ -90,6 +91,7 @@ export class Store {
     this.subscriptions.push(obj);
   }
 
+  // DEPRECATED
   disposeSubscriptions(nameablesAsIdentifier: Nameable[] = [this]): void {
     const identifier = generateIdentifier(nameablesAsIdentifier);
     this.subscriptions

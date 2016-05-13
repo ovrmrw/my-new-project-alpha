@@ -3,21 +3,19 @@ import { Http, Headers } from '@angular/http';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/do';
 import { Store } from '../app/store';
-import { StoreService } from '../app/store.service';
+// import { StoreService } from '../app/store.service';
 import { Credential, Translation, ITranslation } from '../../src-middle/types';
 import { AppPage2Service } from '../page2/page2.service';
 
 const TRANSLATION_TEXT = 'translation-text';
 
 @Injectable()
-export class AppPage1Service extends StoreService {
+export class AppPage1Service {
   constructor(
-    store: Store,
+    private store: Store,
     private http: Http,
     private page2service: AppPage2Service
-  ) {
-    super(store);
-  }
+  ) { }
 
   requestCredential$(jsonPath: string) {
     return this.http.get(jsonPath)
