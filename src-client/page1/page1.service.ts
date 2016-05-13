@@ -3,18 +3,18 @@ import { Http, Headers } from '@angular/http';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/do';
 import { Store } from '../app/store';
-// import { StoreService } from '../app/store.service';
+import { StoreService } from '../app/store.service';
 import { Credential, Translation, ITranslation } from '../../src-middle/types';
-import { AppPage2Service, TITLE } from '../page2/page2.service';
+import { AppPage2Service, PAGE_TITLE } from '../page2/page2.service';
 
 const TRANSLATION_TEXT = 'translation-text';
 
 @Injectable()
-export class AppPage1Service {
+export class AppPage1Service extends StoreService {
   constructor(
-    private store: Store,
+    store: Store,
     private http: Http
-  ) { }
+  ) { super(store); }
 
   requestCredential$(jsonPath: string) {
     return this.http.get(jsonPath)
@@ -30,24 +30,14 @@ export class AppPage1Service {
       .map(res => res.json().result as Translation)
       .do(data => this.store.setState(data, [Translation, this]));
   }
-  
-  getTranslations(limit?: number) { return this.store.getStates<Translation>(limit, [Translation, this]); }
-  getTranslations$(limit?: number) { return this.store.getStates$<Translation>(limit, [Translation, this]); }
+
+  getTranslations(limit?: number) { return this.store.getStates<Translation>([Translation, this], limit); }
+  getTranslations$(limit?: number) { return this.store.getStates$<Translation>([Translation, this], limit); }
 
   setText(text: string) { this.store.setState(text, [TRANSLATION_TEXT, this]); }
   getText() { return this.store.getState<string>([TRANSLATION_TEXT, this]); }
 
   // Page2のServiceがセットした値を取得する。  
-  getTitle() { return this.store.getState<string>([TITLE, AppPage2Service]); }
-  getTitles$(limit?: number) { return this.store.getStates$<string>(limit, [TITLE, AppPage2Service]); }
+  getTitle() { return this.store.getState<string>([PAGE_TITLE, AppPage2Service]); }
+  getTitles$(limit?: number) { return this.store.getStates$<string>([PAGE_TITLE, AppPage2Service], limit); }
 }
-
-// @Injectable()
-// export class AppPage1ServiceRef2 {
-//   constructor(
-//     private page2service: AppPage2Service
-//   ) { }
-
-//   getTitles$(limit?: number) { return this.page2service.getTitles$(limit); }
-//   getTitle() { return this.page2service.getTitle(); }
-// }

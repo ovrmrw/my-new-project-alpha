@@ -1,4 +1,4 @@
-import {Component, ChangeDetectionStrategy, OnInit, ChangeDetectorRef} from '@angular/core';
+import {Component, ChangeDetectionStrategy, OnInit, ChangeDetectorRef, bind} from '@angular/core';
 import {Router, Route, RouteConfig, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
 // import {Routes, Router, ROUTER_DIRECTIVES} from '@angular/router';
 import {Location} from '@angular/common';

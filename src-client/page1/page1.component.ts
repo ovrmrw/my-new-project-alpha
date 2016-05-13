@@ -47,7 +47,7 @@ class HistoryComponent {
 @Component({
   selector: 'sg-page1',
   template: `
-    <h3>{{title}} - PAGE1</h3>
+    <h3>{{_$title}} - PAGE1</h3>
     <div>
       ClientId: <input type="text" [(ngModel)]="clientId" />
     </div>
@@ -59,12 +59,12 @@ class HistoryComponent {
       翻訳したい日本語: <input type="text" [(ngModel)]="text" />
     </div>
     <button (click)="onClick($event)">Translate</button>
-    <hr *ngIf="translationByPush" />
-    <sg-translation [translation]="translationByPush"></sg-translation>
-    <hr *ngIf="pairsByPush.length > 0" />
-    <sg-pairs [pairs]="pairsByPush"></sg-pairs>
+    <hr *ngIf="_$translation" />
+    <sg-translation [translation]="_$translation"></sg-translation>
+    <hr *ngIf="_$pairs.length > 0" />
+    <sg-pairs [pairs]="_$pairs"></sg-pairs>
     <hr />
-    <sg-history [translations]="historyByPush"></sg-history>
+    <sg-history [translations]="_$translations"></sg-history>
   `,
   directives: [TranslationComponent, PairsComponent, HistoryComponent],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -79,35 +79,36 @@ export class AppPage1Component implements OnInit, ComponentGuidelineUsingStore {
     private cd: ChangeDetectorRef
   ) { }
   ngOnInit() {
-    // this.service.disposeSubscriptions(); // registerSubscriptionsの前に、登録済みのsubscriptionを全て破棄する。
-    this.registerSubscriptionsEverytime(); // ページ遷移入の度にsubscriptionを作成する。
+    this.service.disposeSubscriptionsBeforeRegister(); // registerSubscriptionsの前に、登録済みのsubscriptionを全て破棄する。
+    this.registerSubscriptionsEveryEntrance(); // ページ遷移入の度にsubscriptionを作成する。
     this.registerSubscriptionsOnlyOnce(); // 最初にページ遷移入したときだけsubscriptionを作成する。
   }
 
-  registerSubscriptionsEverytime() {
-    // this.service.disposableSubscription = this.service.requestCredential$(appRoot + 'azureDataMarket.secret.json')
+  registerSubscriptionsEveryEntrance() {
     this.service.requestCredential$(appRoot + 'azureDataMarket.secret.json')
       .subscribe(credential => { // Httpモジュールから流れるストリームをsubscribeしたときは一度nextしたら自動的にcompleteされる。
         this.clientId = credential.ClientId;
         this.clientSecret = credential.ClientSecret;
         this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
       });
+
+    this.service.disposableSubscription = this.service.getTranslations$(3)
+      .subscribe(translations => {
+        console.log('DetectChange: ' + (translations.length > 2 ? translations[2].translated : undefined) + ' -> ' + (translations.length > 1 ? translations[1].translated : undefined) + ' -> ' + (translations.length > 0 ? translations[0].translated : undefined) + ' on Page1');
+        this._$translations = translations;
+        this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
+      });
+
+    this.service.disposableSubscription = this.service.getTitles$(3)
+      .subscribe(titles => {
+        console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page1');
+        this._$title = titles[0];
+      });
   }
 
   registerSubscriptionsOnlyOnce() {
     if (!AppPage1Component.isSubscriptionsRegistered) {
-      // this.service.disposableSubscription = this.service.getTranslations$(3)
-      this.service.getTranslations$(3)
-        .subscribe(translations => {
-          console.log('DetectChange: ' + (translations.length > 2 ? translations[2].translated : undefined) + ' -> ' + (translations.length > 1 ? translations[1].translated : undefined) + ' -> ' + (translations.length > 0 ? translations[0].translated : undefined) + ' on Page1');
-          this.historyByPush = translations;
-        });
-
-      // this.service.disposableSubscription = this.service.getTitles$(3)
-      this.service.getTitles$(3)
-        .subscribe(titles => {
-          console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page1');
-        });
+      // your subscription code
     }
     AppPage1Component.isSubscriptionsRegistered = true;
   }
@@ -115,8 +116,8 @@ export class AppPage1Component implements OnInit, ComponentGuidelineUsingStore {
   onClick(event: MouseEvent) {
     this.service.requestTranslation$(this.text, this.clientId, this.clientSecret)
       .subscribe(translation => { // Httpモジュールから流れるストリームをsubscribeしたときは一度nextしたら自動的にcompleteされる。
-        this.translationByPush = translation;
-        this.pairsByPush.push({ original: translation.text, translated: translation.translated });
+        this._$translation = translation;
+        this._$pairs.push({ original: translation.text, translated: translation.translated });
         this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
       });
   }
@@ -124,12 +125,13 @@ export class AppPage1Component implements OnInit, ComponentGuidelineUsingStore {
   set text(text) { this.service.setText(text); }
   get text() { return this.service.getText(); }
 
-  get title() { return this.service.getTitle(); }
+  // get title() { return this.service.getTitle(); }
 
   // Observableにより更新される変数なので勝手に変更しないこと。
-  private translationByPush: Translation;
-  private pairsByPush: LangPair[] = [];
-  private historyByPush: Translation[];
+  private _$translation: Translation;
+  private _$pairs: LangPair[] = [];
+  private _$translations: Translation[];
+  private _$title: string;
 }
 
 

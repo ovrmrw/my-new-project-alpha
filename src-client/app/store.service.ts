@@ -9,7 +9,11 @@ export class StoreService {
   set disposableSubscription(subscription: Subscription) {
     this.store.setDisposableSubscription(subscription, [this]);
   }
-  disposeSubscriptions() {
+  disposeSubscriptionsBeforeRegister() {
     this.store.disposeSubscriptions([this]);
+  }
+
+  clearStatesAndLocalStorage() {
+    this.store.clearStatesAndLocalStorage();
   }
 }

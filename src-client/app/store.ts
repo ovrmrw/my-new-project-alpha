@@ -15,16 +15,24 @@ type Nameable = Function | Object | string;
 type StateObject = { string?: any };
 type SubscriptionObject = { string?: Subscription };
 
+const LOCAL_STORAGE_KEY = 'ovrmrw-localstorage-store';
+
 @Injectable()
 export class Store {
-  private states: StateObject[] = [];
+  private states: StateObject[];
   private subscriptions: SubscriptionObject[] = [];
-  private _dispatcher$: Subject<any>;
+  private _dispatcher$: Subject<any> = new Subject<any>(null);
   private _returner$: Subject<StateObject[]>;
 
   constructor() {
-    this._dispatcher$ = new Subject<any>(null);
-    this._returner$ = new BehaviorSubject([]);
+    let ls: any = null;
+    try {
+      ls = window.localStorage.getItem(LOCAL_STORAGE_KEY);
+    } catch (err) {
+      console.error(err);
+    }
+    this.states = ls ? JSON.parse(ls) : [];
+    this._returner$ = new BehaviorSubject(this.states);
 
     this._dispatcher$
       // .debounceTime(100) // ここにdebounceTimeを入れると全てmarkForCheckが必要になる。Viewまで含めて途端に扱いが難しくなる。
@@ -44,7 +52,7 @@ export class Store {
     this._dispatcher$.next(obj);
   }
 
-  getStates<T>(limit: number, nameablesAsIdentifier: Nameable[]): T[] {
+  getStates<T>(nameablesAsIdentifier: Nameable[], limit?: number): T[] {
     const identifier = generateIdentifier(nameablesAsIdentifier);
     const states = this.states
       .filter(obj => obj && identifier in obj)
@@ -58,12 +66,12 @@ export class Store {
   }
 
   getState<T>(nameablesAsIdentifier: Nameable[]): T {
-    const ary = this.getStates<T>(1, nameablesAsIdentifier);
+    const ary = this.getStates<T>(nameablesAsIdentifier);
     const state = ary && ary.length > 0 ? ary[0] : null;
     return state;
   }
 
-  getStates$<T>(limit: number, nameablesAsIdentifier: Nameable[]): Observable<T[]> {
+  getStates$<T>(nameablesAsIdentifier: Nameable[], limit?: number): Observable<T[]> {
     const identifier = generateIdentifier(nameablesAsIdentifier);
     return this._returner$
       .map(objs => {
@@ -79,13 +87,12 @@ export class Store {
   }
 
   getState$<T>(nameablesAsIdentifier: Nameable[]): Observable<T> {
-    return this.getStates$<T>(1, nameablesAsIdentifier)
+    return this.getStates$<T>(nameablesAsIdentifier)
       .map(states => {
         return (states.length > 0 ? states[0] : null);
       });
   }
 
-  // DEPRECATED
   setDisposableSubscription(subscription: Subscription, nameablesAsIdentifier: Nameable[]): void {
     const identifier = generateIdentifier(nameablesAsIdentifier);
     let obj = {};
@@ -93,7 +100,6 @@ export class Store {
     this.subscriptions.push(obj);
   }
 
-  // DEPRECATED
   disposeSubscriptions(nameablesAsIdentifier: Nameable[] = [this]): void {
     const identifier = generateIdentifier(nameablesAsIdentifier);
     this.subscriptions
@@ -114,11 +120,28 @@ export class Store {
     console.log('↓ subscriptions array on Store ↓');
     console.log(this.subscriptions);
   }
+
+  clearStatesAndLocalStorage(): void {
+    try {
+      window.localStorage.clear();
+    } catch (err) {
+      console.error(err);
+    }
+    this.states = null;
+    this.states = [];
+    this._dispatcher$.next(null);
+  }
 }
 
 // TODO: Implement
-function gabageCollector(array: StateObject[]) {
-  return array;
+function gabageCollector(statesObjArray: StateObject[]) {
+
+  try {
+    window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(statesObjArray));
+  } catch (err) {
+    console.log(err);
+  }
+  return statesObjArray;
 }
 
 function generateIdentifier(nameables: Nameable[]): string {

@@ -4,6 +4,7 @@ import { AppPage2Service } from './page2.service';
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/do';
 import { ComponentGuidelineUsingStore } from '../app/store.interface';
+import { Translation } from '../../src-middle/types';
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Main Component
@@ -14,7 +15,9 @@ import { ComponentGuidelineUsingStore } from '../app/store.interface';
     <div>
       Title: <input type="text" [(ngModel)]="title" />
     </div>
-    <ul><li *ngFor="let t of translations">{{t | json}}</li></ul>
+    <ul><li *ngFor="let t of _$translations">Japanese: {{t.text}} / English: {{t.translated}}</li></ul>
+    <hr />
+    <button (click)="onClickClearStates($event)">Clear States</button>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -26,20 +29,28 @@ export class AppPage2Component implements OnInit, ComponentGuidelineUsingStore {
     private cd: ChangeDetectorRef
   ) { }
   ngOnInit() {
-    // this.service.disposeSubscriptions(); // registerSubscriptionsの前に、登録済みのsubscriptionを全て破棄する。
-    this.registerSubscriptionsEverytime(); // ページ遷移入の度にsubscriptionを作成する。
+    this.service.disposeSubscriptionsBeforeRegister(); // registerSubscriptionsの前に、登録済みのsubscriptionを全て破棄する。
+    this.registerSubscriptionsEveryEntrance(); // ページ遷移入の度にsubscriptionを作成する。
     this.registerSubscriptionsOnlyOnce(); // 最初にページ遷移入したときだけsubscriptionを作成する。
   }
 
-  registerSubscriptionsEverytime() { }
+  registerSubscriptionsEveryEntrance() {
+    this.service.disposableSubscription = this.service.getTitles$(3)
+      .subscribe(titles => {
+        console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page2');
+      });
+
+    this.service.disposableSubscription = this.service.getTranslations$(10)
+      .subscribe(translations => {
+        console.log('DetectChange: ' + (translations.length > 2 ? translations[2].translated : undefined) + ' -> ' + (translations.length > 1 ? translations[1].translated : undefined) + ' -> ' + (translations.length > 0 ? translations[0].translated : undefined) + ' on Page2');
+        this._$translations = translations;
+        this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
+      });
+  }
 
   registerSubscriptionsOnlyOnce() {
     if (!AppPage2Component.isSubscriptionsRegistered) {
-      // this.service.disposableSubscription = this.service.getTitles$(3)
-      this.service.getTitles$(3)
-        .subscribe(titles => {
-          console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page2');
-        });
+      // your subscription code
     }
     AppPage2Component.isSubscriptionsRegistered = true;
   }
@@ -47,5 +58,12 @@ export class AppPage2Component implements OnInit, ComponentGuidelineUsingStore {
   set title(title: string) { this.service.setTitle(title); }
   get title() { return this.service.getTitle(); }
 
-  get translations() { return this.service.getTranslations(3); }
+  onClickClearStates() {
+    this.service.clearStatesAndLocalStorage();
+  }
+
+  // get translations() { return this.service.getTranslations(3); }
+
+  // Observableにより更新される変数なので勝手に変更しないこと。
+  private _$translations: Translation[];
 }
