@@ -16,6 +16,7 @@ type StateObject = { string?: any };
 type SubscriptionObject = { string?: Subscription };
 
 const LOCAL_STORAGE_KEY = 'ovrmrw-localstorage-store';
+const MAX = 1000;
 
 @Injectable()
 export class Store {
@@ -52,7 +53,7 @@ export class Store {
     this._dispatcher$.next(obj);
   }
 
-  getStates<T>(nameablesAsIdentifier: Nameable[], limit?: number): T[] {
+  getStates<T>(nameablesAsIdentifier: Nameable[], limit: number = MAX): T[] {
     const identifier = generateIdentifier(nameablesAsIdentifier);
     const states = this.states
       .filter(obj => obj && identifier in obj)
@@ -66,12 +67,12 @@ export class Store {
   }
 
   getState<T>(nameablesAsIdentifier: Nameable[]): T {
-    const ary = this.getStates<T>(nameablesAsIdentifier);
+    const ary = this.getStates<T>(nameablesAsIdentifier, 1);
     const state = ary && ary.length > 0 ? ary[0] : null;
     return state;
   }
 
-  getStates$<T>(nameablesAsIdentifier: Nameable[], limit?: number): Observable<T[]> {
+  getStates$<T>(nameablesAsIdentifier: Nameable[], limit: number = MAX): Observable<T[]> {
     const identifier = generateIdentifier(nameablesAsIdentifier);
     return this._returner$
       .map(objs => {
@@ -87,7 +88,7 @@ export class Store {
   }
 
   getState$<T>(nameablesAsIdentifier: Nameable[]): Observable<T> {
-    return this.getStates$<T>(nameablesAsIdentifier)
+    return this.getStates$<T>(nameablesAsIdentifier, 1)
       .map(states => {
         return (states.length > 0 ? states[0] : null);
       });
@@ -133,15 +134,29 @@ export class Store {
   }
 }
 
-// TODO: Implement
-function gabageCollector(statesObjArray: StateObject[]) {
+
+function gabageCollector(stateObjects: StateObject[], maxElementsByKey: number = MAX) {
+  const keys = stateObjects.filter(obj => obj && typeof obj === 'object').map(obj => Object.keys(obj)[0]);
+  const uniqKeys = lodash.uniq(keys);
+  console.log('Keys: ' + uniqKeys.join(', '));
+  let newObjs: StateObject[] = [];
+
+  // key毎に保存最大数を超えたものをカットして新しい配列を作る。
+  uniqKeys.forEach(key => {
+    const objs = stateObjects.filter(obj => obj && key in obj);
+    if (objs.length > maxElementsByKey) {
+      objs.reverse().slice(0, maxElementsByKey).reverse().forEach(obj => newObjs.push(obj));
+    } else {
+      objs.forEach(obj => newObjs.push(obj));
+    }
+  });
 
   try {
-    window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(statesObjArray));
+    window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newObjs));
   } catch (err) {
     console.log(err);
   }
-  return statesObjArray;
+  return newObjs;
 }
 
 function generateIdentifier(nameables: Nameable[]): string {

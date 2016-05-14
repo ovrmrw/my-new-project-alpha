@@ -11,7 +11,7 @@ import { Translation } from '../../src-middle/types';
 @Component({
   selector: 'sg-page2',
   template: `
-    <h3>{{title}} - PAGE2</h3>
+    <h2>{{title}} - PAGE2</h2>
     <div>
       Title: <input type="text" [(ngModel)]="title" />
     </div>
@@ -19,6 +19,7 @@ import { Translation } from '../../src-middle/types';
     <hr />
     <button (click)="onClickClearStates($event)">Clear States</button>
   `,
+  providers: [AppPage2Service],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppPage2Component implements OnInit, ComponentGuidelineUsingStore {

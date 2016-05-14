@@ -47,7 +47,7 @@ class HistoryComponent {
 @Component({
   selector: 'sg-page1',
   template: `
-    <h3>{{_$title}} - PAGE1</h3>
+    <h2>{{_$title}} - PAGE1</h2>
     <div>
       ClientId: <input type="text" [(ngModel)]="clientId" />
     </div>
@@ -67,6 +67,7 @@ class HistoryComponent {
     <sg-history [translations]="_$translations"></sg-history>
   `,
   directives: [TranslationComponent, PairsComponent, HistoryComponent],
+  providers: [AppPage1Service],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppPage1Component implements OnInit, ComponentGuidelineUsingStore {
