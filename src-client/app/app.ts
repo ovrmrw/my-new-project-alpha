@@ -1,12 +1,10 @@
-import {Component, ChangeDetectionStrategy, OnInit, ChangeDetectorRef, bind} from '@angular/core';
-import {Router, Route, RouteConfig, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Router, Route, RouteConfig, ROUTER_DIRECTIVES } from '@angular/router-deprecated';
 // import {Routes, Router, ROUTER_DIRECTIVES} from '@angular/router';
-import {Location} from '@angular/common';
+import { Location } from '@angular/common';
 import { AppPage1Component } from '../page1/page1.component';
 import { AppPage2Component } from '../page2/page2.component';
 import { AppPage3Component } from '../page3/page3.component';
-// import { AppPage1Service } from '../page1/page1.service';
-// import { AppPage2Service } from '../page2/page2.service';
 import { Store } from './store';
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -25,7 +23,7 @@ import { Store } from './store';
   `,
   directives: [ROUTER_DIRECTIVES],
   providers: [Store],
-  // changeDetection: ChangeDetectionStrategy.Default
+  changeDetection: ChangeDetectionStrategy.Default
 })
 @RouteConfig([
   new Route({ path: 'p1', component: AppPage1Component, name: 'Page1', useAsDefault: true }),

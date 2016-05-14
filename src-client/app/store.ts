@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
-import { Observable } from 'rxjs/Observable';
-import { Observer } from 'rxjs/Observer';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Subscription } from 'rxjs/Subscription';
-import 'rxjs/add/observable/from';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/filter';
-import 'rxjs/add/operator/do';
-import 'rxjs/add/operator/debounceTime';
+// import { Subject } from 'rxjs/Subject';
+// import { Observable } from 'rxjs/Observable';
+// import { Observer } from 'rxjs/Observer';
+// import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+// import { Subscription } from 'rxjs/Subscription';
+// import 'rxjs/add/observable/from';
+// import 'rxjs/add/operator/map';
+// import 'rxjs/add/operator/filter';
+// import 'rxjs/add/operator/do';
+// import 'rxjs/add/operator/debounceTime';
+import { Observable, Observer, Subject, BehaviorSubject, Subscription } from 'rxjs/Rx';
 import lodash from 'lodash';
 
 type Nameable = Function | Object | string;
@@ -152,7 +153,10 @@ function gabageCollector(stateObjects: StateObject[], maxElementsByKey: number =
   });
 
   try {
-    window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newObjs));
+    // setTimeoutで遅らせるのがベストプラクティスなのかどうかはわからない。
+    setTimeout(() => {
+      window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newObjs));
+    }, 1);
   } catch (err) {
     console.log(err);
   }

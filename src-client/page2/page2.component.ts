@@ -1,8 +1,7 @@
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from '@angular/core';
 import lodash from 'lodash';
+
 import { AppPage2Service } from './page2.service';
-import 'rxjs/add/operator/share';
-import 'rxjs/add/operator/do';
 import { ComponentGuidelineUsingStore } from '../app/store.interface';
 import { Translation } from '../../src-middle/types';
 

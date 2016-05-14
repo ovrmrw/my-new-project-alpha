@@ -1,5 +1,6 @@
-import { Component, Input, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from '@angular/core';
 import lodash from 'lodash';
+
 import { AppPage1Service } from './page1.service';
 import { appRoot } from '../../src-middle/utils';
 import { Credential, Translation } from '../../src-middle/types';
