@@ -24,6 +24,7 @@ export class Store {
   private states: StateObject[];
   private subscriptions: SubscriptionObject[] = [];
   private _dispatcher$: Subject<any> = new Subject<any>(null);
+  private _localStorageKeeper$: Subject<StateObject[]> = new Subject<StateObject[]>(null);
   private _returner$: Subject<StateObject[]>;
 
   constructor() {
@@ -40,10 +41,22 @@ export class Store {
       // .debounceTime(100) // ここにdebounceTimeを入れると全てmarkForCheckが必要になる。Viewまで含めて途端に扱いが難しくなる。
       .subscribe(newState => {
         this.states.push(newState);
-        this.states = gabageCollector(this.states);
-        console.log('↓ states array on Store ↓');
-        console.log(this.states);
+        this.states = this.gabageCollector(this.states);
+        // console.log('↓ states array on Store ↓');
+        // console.log(this.states);
         this._returner$.next(this.states);
+      });
+
+    // debounceTimeで頻度を抑えながらLocalStorageに保存する。
+    this._localStorageKeeper$
+      .debounceTime(100)
+      .subscribe(stateObjects => {
+        try {
+          window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateObjects));
+          // console.log('localStorageに保存');
+        } catch (err) {
+          console.error(err);
+        }
       });
   }
 
@@ -133,35 +146,27 @@ export class Store {
     this.states = [];
     this._dispatcher$.next(null);
   }
-}
 
+  gabageCollector(stateObjects: StateObject[], maxElementsByKey: number = MAX) {
+    const keys = stateObjects.filter(obj => obj && typeof obj === 'object').map(obj => Object.keys(obj)[0]);
+    const uniqKeys = lodash.uniq(keys);
+    // console.log('Keys: ' + uniqKeys.join(', '));
+    let newObjs: StateObject[] = [];
 
-function gabageCollector(stateObjects: StateObject[], maxElementsByKey: number = MAX) {
-  const keys = stateObjects.filter(obj => obj && typeof obj === 'object').map(obj => Object.keys(obj)[0]);
-  const uniqKeys = lodash.uniq(keys);
-  console.log('Keys: ' + uniqKeys.join(', '));
-  let newObjs: StateObject[] = [];
-
-  // key毎に保存最大数を超えたものをカットして新しい配列を作る。
-  uniqKeys.forEach(key => {
-    const objs = stateObjects.filter(obj => obj && key in obj);
-    if (objs.length > maxElementsByKey) {
-      objs.reverse().slice(0, maxElementsByKey).reverse().forEach(obj => newObjs.push(obj));
-    } else {
-      objs.forEach(obj => newObjs.push(obj));
-    }
-  });
-
-  try {
-    // setTimeoutで遅らせるのがベストプラクティスなのかどうかはわからない。
-    setTimeout(() => {
-      window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newObjs));
-    }, 1);
-  } catch (err) {
-    console.log(err);
+    // key毎に保存最大数を超えたものをカットして新しい配列を作る。
+    uniqKeys.forEach(key => {
+      const objs = stateObjects.filter(obj => obj && key in obj);
+      if (objs.length > maxElementsByKey) {
+        objs.reverse().slice(0, maxElementsByKey).reverse().forEach(obj => newObjs.push(obj));
+      } else {
+        objs.forEach(obj => newObjs.push(obj));
+      }
+    });
+    this._localStorageKeeper$.next(newObjs);
+    return newObjs;
   }
-  return newObjs;
 }
+
 
 function generateIdentifier(nameables: Nameable[]): string {
   let ary: string[] = [];
