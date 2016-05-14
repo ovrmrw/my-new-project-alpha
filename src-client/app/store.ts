@@ -124,7 +124,7 @@ export class Store {
 
   clearStatesAndLocalStorage(): void {
     try {
-      window.localStorage.clear();
+      window.localStorage.removeItem(LOCAL_STORAGE_KEY);
     } catch (err) {
       console.error(err);
     }
