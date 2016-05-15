@@ -1,4 +1,4 @@
-import { Subscription } from 'rxjs/Rx';
+import { Subscription } from 'rxjs/Subscription';
 import { Store } from './store';
 
 export class StoreService {
@@ -9,6 +9,12 @@ export class StoreService {
   set disposableSubscription(subscription: Subscription) {
     this.store.setDisposableSubscription(subscription, [this]);
   }
+  set disposableSubscriptions(subscriptions: Subscription[]) {
+    subscriptions.forEach(subscription => {
+      this.disposableSubscription = subscription;
+    });
+  }
+
   disposeSubscriptionsBeforeRegister() {
     this.store.disposeSubscriptions([this]);
   }

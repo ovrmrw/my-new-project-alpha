@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 
 import { Store, StoreService } from '../store';
-import { Credential, Translation, ITranslation } from '../../src-middle/types';
+import { Credential, Translation, ITranslation } from '../types';
 import { AppPage2Service, PAGE_TITLE } from '../page2/page2.service';
 
-const TRANSLATION_TEXT = 'translation-text';
+export const TRANSLATION_TEXT = 'translation-text';
 
 @Injectable()
 export class AppPage1Service extends StoreService {

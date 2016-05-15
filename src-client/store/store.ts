@@ -1,15 +1,14 @@
 import { Injectable } from '@angular/core';
-// import { Subject } from 'rxjs/Subject';
-// import { Observable } from 'rxjs/Observable';
-// import { Observer } from 'rxjs/Observer';
-// import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-// import { Subscription } from 'rxjs/Subscription';
+// import { Observable, Subject, BehaviorSubject, Subscription } from 'rxjs/Rx';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Subscription } from 'rxjs/Subscription';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/debounceTime';
 // import 'rxjs/add/observable/from';
-// import 'rxjs/add/operator/map';
-// import 'rxjs/add/operator/filter';
 // import 'rxjs/add/operator/do';
-// import 'rxjs/add/operator/debounceTime';
-import { Observable, Observer, Subject, BehaviorSubject, Subscription } from 'rxjs/Rx';
 import lodash from 'lodash';
 
 type Nameable = Function | Object | string;
@@ -30,7 +29,9 @@ export class Store {
   constructor() {
     let ls: any = null;
     try {
+      console.time('localStorageGetItem');
       ls = window.localStorage.getItem(LOCAL_STORAGE_KEY);
+      console.timeEnd('localStorageGetItem');
     } catch (err) {
       console.error(err);
     }

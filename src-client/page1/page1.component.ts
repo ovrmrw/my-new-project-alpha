@@ -3,7 +3,7 @@ import lodash from 'lodash';
 
 import { AppPage1Service } from './page1.service';
 import { appRoot } from '../../src-middle/utils';
-import { Credential, Translation } from '../../src-middle/types';
+import { Credential, Translation } from '../types';
 import { ComponentGuidelineUsingStore } from '../store';
 
 ///////////////////////////////////////////////////////////////////////////////////

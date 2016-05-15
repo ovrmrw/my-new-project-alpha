@@ -3,7 +3,7 @@ import { Observable } from 'rxjs/Rx';
 import lodash from 'lodash';
 
 import { ComponentGuidelineUsingStore } from '../store';
-import { Translation } from '../../src-middle/types';
+import { Translation } from '../types';
 import { AppPage3Service } from './page3.service';
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -15,6 +15,10 @@ import { AppPage3Service } from './page3.service';
     <h3>Changing history of Title</h3>
     <div>
       {{_$title}}
+    </div>
+    <h3>Changing history of Text</h3>
+    <div>
+      {{_$text}}
     </div>
   `,
   providers: [AppPage3Service],
@@ -34,23 +38,33 @@ export class AppPage3Component implements OnInit, ComponentGuidelineUsingStore {
   }
 
   registerSubscriptionsEveryEntrance() {
-    this.service.disposableSubscription = this.service.getTitles$(3)
+    const titleSubscription = this.service.getTitles$(3)
       .subscribe(titles => {
         console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page3');
       });
 
     const titles = this.service.getTitles().reverse();
-    const intervalSubscription = Observable.interval(10)
+    const texts = this.service.getTexts().reverse();
+    const intervalSubscription = Observable.interval(5)
       .subscribe(x => {
         if (titles.length > x) {
           console.log(titles[x]);
           this._$title = titles[x];
+        }
+
+        if (texts.length > x) {
+          console.log(texts[x]);
+          this._$text = texts[x];
+        }
+
+        if (titles.length > x || texts.length > x) {
           this.cd.markForCheck();
         } else {
           intervalSubscription.unsubscribe(); // これ以上監視する必要がないのでunsubscribeする。
         }
       });
-    this.service.disposableSubscription = intervalSubscription;
+
+    this.service.disposableSubscriptions = [titleSubscription, intervalSubscription];
   }
 
   registerSubscriptionsOnlyOnce() {
@@ -64,4 +78,5 @@ export class AppPage3Component implements OnInit, ComponentGuidelineUsingStore {
 
   // Observableにより更新される変数なので勝手に変更しないこと。;
   private _$title: string;
+  private _$text: string;
 }

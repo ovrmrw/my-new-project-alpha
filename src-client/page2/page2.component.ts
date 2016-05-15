@@ -3,7 +3,7 @@ import lodash from 'lodash';
 
 import { AppPage2Service } from './page2.service';
 import { ComponentGuidelineUsingStore } from '../store';
-import { Translation } from '../../src-middle/types';
+import { Translation } from '../types';
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Main Component

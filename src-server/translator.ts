@@ -1,7 +1,7 @@
 import 'babel-polyfill'; // async/awaitを書くなら必要。
 import request from 'request';
 import { parseString } from 'xml2js';
-import { Credential } from '../src-middle/types';
+import { Credential } from './types';
 
 let azureDataMarketClientId: string;
 let azureDataMarketClientSecret: string;

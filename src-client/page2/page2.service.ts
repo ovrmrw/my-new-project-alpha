@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { Store, StoreService } from '../store';
 import { AppPage1Service } from '../page1/page1.service';
-import { Translation } from '../../src-middle/types';
+import { Translation } from '../types';
 
 export const PAGE_TITLE = 'page-title';
 

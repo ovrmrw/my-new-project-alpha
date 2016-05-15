@@ -5,7 +5,7 @@ import bodyParser from 'body-parser';
 import falcorExpress from 'falcor-express'; // const falcorExpress = require('falcor-express');
 import { translateAsync } from './translator';
 import { appRoot } from '../src-middle/utils';
-import { ITranslation } from '../src-middle/types';
+import { ITranslation } from './types';
 
 const app = express();
 app.set('views', appRoot + '/views');
