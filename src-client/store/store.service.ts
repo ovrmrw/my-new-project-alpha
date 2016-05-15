@@ -1,5 +1,5 @@
 import { Subscription } from 'rxjs/Rx';
-import { Store } from '../app/store';
+import { Store } from './store';
 
 export class StoreService {
   constructor(

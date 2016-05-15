@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from '@
 import { Observable } from 'rxjs/Rx';
 import lodash from 'lodash';
 
-import { ComponentGuidelineUsingStore } from '../app/store.interface';
+import { ComponentGuidelineUsingStore } from '../store';
 import { Translation } from '../../src-middle/types';
 import { AppPage3Service } from './page3.service';
 
@@ -40,7 +40,7 @@ export class AppPage3Component implements OnInit, ComponentGuidelineUsingStore {
       });
 
     const titles = this.service.getTitles().reverse();
-    this.service.disposableSubscription = Observable.interval(50)
+    this.service.disposableSubscription = Observable.interval(20)
       .subscribe(x => {
         if (titles.length > x) {
           console.log(titles[x]);

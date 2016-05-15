@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from '@
 import lodash from 'lodash';
 
 import { AppPage2Service } from './page2.service';
-import { ComponentGuidelineUsingStore } from '../app/store.interface';
+import { ComponentGuidelineUsingStore } from '../store';
 import { Translation } from '../../src-middle/types';
 
 ///////////////////////////////////////////////////////////////////////////////////

@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 
-import { Store } from '../app/store';
-import { StoreService } from '../app/store.service';
+import { Store, StoreService } from '../store';
 import { Credential, Translation, ITranslation } from '../../src-middle/types';
 import { AppPage2Service, PAGE_TITLE } from '../page2/page2.service';
 
@@ -15,7 +14,7 @@ export class AppPage1Service extends StoreService {
     private http: Http
   ) { super(store); }
 
-  requestCredential$(jsonPath: string) {    
+  requestCredential$(jsonPath: string) {
     return this.http.get(jsonPath)
       .map(res => res.json() as Credential)
       .do(data => this.store.setState(data, [Credential, this]));

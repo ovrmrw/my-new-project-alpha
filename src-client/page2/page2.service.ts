@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { Store } from '../app/store';
-import { StoreService } from '../app/store.service';
+import { Store, StoreService } from '../store';
 import { AppPage1Service } from '../page1/page1.service';
 import { Translation } from '../../src-middle/types';
 

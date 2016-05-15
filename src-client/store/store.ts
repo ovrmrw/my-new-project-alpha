@@ -41,10 +41,11 @@ export class Store {
       // .debounceTime(100) // ここにdebounceTimeを入れると全てmarkForCheckが必要になる。Viewまで含めて途端に扱いが難しくなる。
       .subscribe(newState => {
         this.states.push(newState);
-        this.states = this.gabageCollector(this.states);
+        this.states = gabageCollectorFastTuned(this.states);
         // console.log('↓ states array on Store ↓');
         // console.log(this.states);
         this._returner$.next(this.states);
+        this._localStorageKeeper$.next(this.states);
       });
 
     // debounceTimeで頻度を抑えながらLocalStorageに保存する。
@@ -146,27 +147,88 @@ export class Store {
     this.states = [];
     this._dispatcher$.next(null);
   }
-
-  gabageCollector(stateObjects: StateObject[], maxElementsByKey: number = MAX) {
-    const keys = stateObjects.filter(obj => obj && typeof obj === 'object').map(obj => Object.keys(obj)[0]);
-    const uniqKeys = lodash.uniq(keys);
-    // console.log('Keys: ' + uniqKeys.join(', '));
-    let newObjs: StateObject[] = [];
-
-    // key毎に保存最大数を超えたものをカットして新しい配列を作る。
-    uniqKeys.forEach(key => {
-      const objs = stateObjects.filter(obj => obj && key in obj);
-      if (objs.length > maxElementsByKey) {
-        objs.reverse().slice(0, maxElementsByKey).reverse().forEach(obj => newObjs.push(obj));
-      } else {
-        objs.forEach(obj => newObjs.push(obj));
-      }
-    });
-    this._localStorageKeeper$.next(newObjs);
-    return newObjs;
-  }
 }
 
+
+function gabageCollector(stateObjects: StateObject[], maxElementsByKey: number = MAX) {
+  console.time('gabageCollector');
+  const keys = stateObjects.filter(obj => obj && typeof obj === 'object').map(obj => Object.keys(obj)[0]);
+  const uniqKeys = lodash.uniq(keys);
+  // console.log('Keys: ' + uniqKeys.join(', '));
+  let newObjs: StateObject[] = [];
+
+  // key毎に保存最大数を超えたものをカットして新しい配列を作る。
+  uniqKeys.forEach(key => {
+    const objs = stateObjects.filter(obj => obj && key in obj);
+    if (objs.length > maxElementsByKey) {
+      objs.reverse().slice(0, maxElementsByKey).reverse().forEach(obj => newObjs.push(obj));
+    } else {
+      objs.forEach(obj => newObjs.push(obj));
+    }
+  });
+  console.timeEnd('gabageCollector');
+  return newObjs;
+}
+
+// gabageCollectorの処理速度が高速になるようにチューニングしたもの。10倍近く速い。
+// 参考: http://qiita.com/keroxp/items/67804391a8d65eb32cb8
+function gabageCollectorFastTuned(stateObjects: StateObject[], maxElementsByKey: number = MAX) {
+  // 最速0.38 ms
+  console.time('gabageCollectorFastTuned');
+  // const keys = stateObjects.filter(obj => obj && typeof obj === 'object').map(obj => Object.keys(obj)[0]);
+  let keys: string[] = [];
+  let i = 0;
+  while (i < stateObjects.length) {
+    if (typeof stateObjects[i] === 'object') {
+      keys.push(Object.keys(stateObjects[i])[0]);
+    }
+    i = (i + 1) | 0;
+  }
+  const uniqKeys = lodash.uniq(keys);
+  // console.log('Keys: ' + uniqKeys.join(', '));
+  let newObjs: StateObject[] = [];
+
+  // key毎に保存最大数を超えたものをカットして新しい配列を作る。
+  // uniqKeys.forEach(key => {
+  //   const objs = stateObjects.filter(obj => obj && key in obj);
+  //   if (objs.length > maxElementsByKey) {
+  //     objs.reverse().slice(0, maxElementsByKey).reverse().forEach(obj => newObjs.push(obj));
+  //   } else {
+  //     objs.forEach(obj => newObjs.push(obj));
+  //   }
+  // });
+  let j = 0;
+  while (j < uniqKeys.length) {
+    // const objs = stateObjects.filter(obj => obj && uniqKeys[i] in obj);
+    let objs: StateObject[] = [];
+    let k = 0;
+    while (k < stateObjects.length) {
+      if (uniqKeys[j] in stateObjects[k]) {
+        objs.push(stateObjects[k]);
+      }
+      k = (k + 1) | 0;
+    }
+    if (objs.length > maxElementsByKey) {
+      // objs.reverse().slice(0, maxElementsByKey).reverse().forEach(obj => newObjs.push(obj));
+      const ary = objs.reverse().slice(0, maxElementsByKey).reverse();
+      let l = 0;
+      while (l < ary.length) {
+        newObjs.push(ary[l]);
+        l = (l + 1) | 0;
+      }
+    } else {
+      // objs.forEach(obj => newObjs.push(obj));
+      let l = 0;
+      while (l < objs.length) {
+        newObjs.push(objs[l]);
+        l = (l + 1) | 0;
+      }
+    }
+    j = (j + 1) | 0;
+  }
+  console.timeEnd('gabageCollectorFastTuned');
+  return newObjs;
+}
 
 function generateIdentifier(nameables: Nameable[]): string {
   let ary: string[] = [];
