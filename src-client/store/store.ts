@@ -42,6 +42,7 @@ export class Store {
       // .debounceTime(100) // ここにdebounceTimeを入れると全てmarkForCheckが必要になる。Viewまで含めて途端に扱いが難しくなる。
       .subscribe(newState => {
         this.states.push(newState);
+        // this.states = gabageCollector(this.states);
         this.states = gabageCollectorFastTuned(this.states);
         // console.log('↓ states array on Store ↓');
         // console.log(this.states);
@@ -182,7 +183,7 @@ function gabageCollectorFastTuned(stateObjects: StateObject[], maxElementsByKey:
   let keys: string[] = [];
   // let i = 0;
   for (let i = 0; i < stateObjects.length; i = (i + 1) | 0) {
-    if (stateObjects[i] && typeof stateObjects[i] === 'object') {
+    if (typeof stateObjects[i] === 'object') {
       keys.push(Object.keys(stateObjects[i])[0]);
     }
     // i = (i + 1) | 0;
@@ -213,7 +214,7 @@ function gabageCollectorFastTuned(stateObjects: StateObject[], maxElementsByKey:
     }
     if (objs.length > maxElementsByKey) {
       // objs.reverse().slice(0, maxElementsByKey).reverse().forEach(obj => newObjs.push(obj));
-      const ary = objs.reverse().slice(0, maxElementsByKey).reverse();
+      const ary = objs.reverse().slice(0, maxElementsByKey).reverse(); // TODO:もっとやりようがある。
       // let l = 0;
       for (let l = 0; l < ary.length; l = (l + 1) | 0) {
         newObjs.push(ary[l]);
