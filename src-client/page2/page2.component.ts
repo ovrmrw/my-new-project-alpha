@@ -1,5 +1,4 @@
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from '@angular/core';
-import lodash from 'lodash';
 
 import { AppPage2Service } from './page2.service';
 import { ComponentGuidelineUsingStore } from '../store';
@@ -61,8 +60,6 @@ export class AppPage2Component implements OnInit, ComponentGuidelineUsingStore {
   onClickClearStates() {
     this.service.clearStatesAndLocalStorage();
   }
-
-  // get translations() { return this.service.getTranslations(3); }
 
   // Observableにより更新される変数なので勝手に変更しないこと。
   private _$translations: Translation[];

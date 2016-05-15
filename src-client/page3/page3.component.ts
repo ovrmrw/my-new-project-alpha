@@ -1,9 +1,7 @@
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
-import lodash from 'lodash';
 
 import { ComponentGuidelineUsingStore } from '../store';
-import { Translation } from '../types';
 import { AppPage3Service } from './page3.service';
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -58,7 +56,7 @@ export class AppPage3Component implements OnInit, ComponentGuidelineUsingStore {
         }
 
         if (titles.length > x || texts.length > x) {
-          this.cd.markForCheck();
+          this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
         } else {
           intervalSubscription.unsubscribe(); // これ以上監視する必要がないのでunsubscribeする。
         }
