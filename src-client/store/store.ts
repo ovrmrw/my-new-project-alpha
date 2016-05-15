@@ -56,7 +56,7 @@ export class Store {
         try {
           console.time('localStorageSetItem');
           window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateObjects));
-          console.timeEnd('localStorageSetItem')
+          console.timeEnd('localStorageSetItem');
           // console.log('localStorageに保存');
         } catch (err) {
           console.error(err);
