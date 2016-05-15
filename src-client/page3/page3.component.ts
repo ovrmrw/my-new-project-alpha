@@ -47,7 +47,7 @@ export class AppPage3Component implements OnInit, ComponentGuidelineUsingStore {
           this._$title = titles[x];
           this.cd.markForCheck();
         } else {
-          intervalSubscription.unsubscribe();
+          intervalSubscription.unsubscribe(); // これ以上監視する必要がないのでunsubscribeする。
         }
       });
     this.service.disposableSubscription = intervalSubscription;
