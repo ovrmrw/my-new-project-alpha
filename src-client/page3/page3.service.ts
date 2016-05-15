@@ -12,10 +12,10 @@ export class AppPage3Service extends StoreService {
   ) { super(store); }
 
   // Page1のServiceがセットした値を取得する。
-  getTexts(limit?: number) { return this.store.getStates<string>([TRANSLATION_TEXT, AppPage1Service], limit); }
+  getPage1Texts(limit?: number) { return this.store.getStates<string>([TRANSLATION_TEXT, AppPage1Service], limit); }
 
   // Page2のServiceがセットした値を取得する。
-  getTitle() { return this.store.getState<string>([PAGE_TITLE, AppPage2Service]); }
-  getTitles(limit?: number) { return this.store.getStates<string>([PAGE_TITLE, AppPage2Service], limit); }
-  getTitles$(limit?: number) { return this.store.getStates$<string>([PAGE_TITLE, AppPage2Service], limit); }
+  getPage2Title() { return this.store.getState<string>([PAGE_TITLE, AppPage2Service]); }
+  getPage2Titles(limit?: number) { return this.store.getStates<string>([PAGE_TITLE, AppPage2Service], limit); }
+  getPage2Titles$(limit?: number) { return this.store.getStates$<string>([PAGE_TITLE, AppPage2Service], limit); }
 }

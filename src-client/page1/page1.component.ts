@@ -101,7 +101,7 @@ export class AppPage1Component implements OnInit, ComponentGuidelineUsingStore {
         this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
       });
 
-    this.service.disposableSubscription = this.service.getTitles$(3)
+    this.service.disposableSubscription = this.service.getPage2Titles$(3)
       .subscribe(titles => {
         console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page1');
         this._$title = titles[0];

@@ -36,6 +36,6 @@ export class AppPage1Service extends StoreService {
   getText() { return this.store.getState<string>([TRANSLATION_TEXT, this]); }
 
   // Page2のServiceがセットした値を取得する。  
-  getTitle() { return this.store.getState<string>([PAGE_TITLE, AppPage2Service]); }
-  getTitles$(limit?: number) { return this.store.getStates$<string>([PAGE_TITLE, AppPage2Service], limit); }
+  getPage2Title() { return this.store.getState<string>([PAGE_TITLE, AppPage2Service]); }
+  getPage2Titles$(limit?: number) { return this.store.getStates$<string>([PAGE_TITLE, AppPage2Service], limit); }
 }

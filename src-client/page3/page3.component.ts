@@ -36,13 +36,13 @@ export class AppPage3Component implements OnInit, ComponentGuidelineUsingStore {
   }
 
   registerSubscriptionsEveryEntrance() {
-    const titleSubscription = this.service.getTitles$(3)
+    const titleSubscription = this.service.getPage2Titles$(3)
       .subscribe(titles => {
         console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page3');
       });
 
-    const titles = this.service.getTitles().reverse();
-    const texts = this.service.getTexts().reverse();
+    const titles = this.service.getPage2Titles().reverse();
+    const texts = this.service.getPage1Texts().reverse();
     const intervalSubscription = Observable.interval(5)
       .subscribe(x => {
         if (titles.length > x) {
@@ -72,7 +72,7 @@ export class AppPage3Component implements OnInit, ComponentGuidelineUsingStore {
     AppPage3Component.isSubscriptionsRegistered = true;
   }
 
-  get title() { return this.service.getTitle(); }
+  get title() { return this.service.getPage2Title(); }
 
   // Observableにより更新される変数なので勝手に変更しないこと。;
   private _$title: string;
