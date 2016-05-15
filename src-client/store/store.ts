@@ -182,7 +182,7 @@ function gabageCollectorFastTuned(stateObjects: StateObject[], maxElementsByKey:
   let keys: string[] = [];
   // let i = 0;
   for (let i = 0; i < stateObjects.length; i = (i + 1) | 0) {
-    if (typeof stateObjects[i] === 'object') {
+    if (stateObjects[i] && typeof stateObjects[i] === 'object') {
       keys.push(Object.keys(stateObjects[i])[0]);
     }
     // i = (i + 1) | 0;
