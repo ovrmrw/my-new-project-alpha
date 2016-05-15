@@ -50,10 +50,12 @@ export class Store {
 
     // debounceTimeで頻度を抑えながらLocalStorageに保存する。
     this._localStorageKeeper$
-      .debounceTime(100)
+      .debounceTime(250)
       .subscribe(stateObjects => {
         try {
+          console.time('localStorageSetItem');
           window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateObjects));
+          console.timeEnd('localStorageSetItem')
           // console.log('localStorageに保存');
         } catch (err) {
           console.error(err);
@@ -177,12 +179,12 @@ function gabageCollectorFastTuned(stateObjects: StateObject[], maxElementsByKey:
   console.time('gabageCollectorFastTuned');
   // const keys = stateObjects.filter(obj => obj && typeof obj === 'object').map(obj => Object.keys(obj)[0]);
   let keys: string[] = [];
-  let i = 0;
-  while (i < stateObjects.length) {
+  // let i = 0;
+  for (let i = 0; i < stateObjects.length; i = (i + 1) | 0) {
     if (typeof stateObjects[i] === 'object') {
       keys.push(Object.keys(stateObjects[i])[0]);
     }
-    i = (i + 1) | 0;
+    // i = (i + 1) | 0;
   }
   const uniqKeys = lodash.uniq(keys);
   // console.log('Keys: ' + uniqKeys.join(', '));
@@ -197,34 +199,34 @@ function gabageCollectorFastTuned(stateObjects: StateObject[], maxElementsByKey:
   //     objs.forEach(obj => newObjs.push(obj));
   //   }
   // });
-  let j = 0;
-  while (j < uniqKeys.length) {
+  // let j = 0;
+  for (let j = 0; j < uniqKeys.length; j = (j + 1) | 0) {
     // const objs = stateObjects.filter(obj => obj && uniqKeys[i] in obj);
     let objs: StateObject[] = [];
-    let k = 0;
-    while (k < stateObjects.length) {
+    // let k = 0;
+    for (let k = 0; k < stateObjects.length; k = (k + 1) | 0) {
       if (uniqKeys[j] in stateObjects[k]) {
         objs.push(stateObjects[k]);
       }
-      k = (k + 1) | 0;
+      // k = (k + 1) | 0;
     }
     if (objs.length > maxElementsByKey) {
       // objs.reverse().slice(0, maxElementsByKey).reverse().forEach(obj => newObjs.push(obj));
       const ary = objs.reverse().slice(0, maxElementsByKey).reverse();
-      let l = 0;
-      while (l < ary.length) {
+      // let l = 0;
+      for (let l = 0; l < ary.length; l = (l + 1) | 0) {
         newObjs.push(ary[l]);
-        l = (l + 1) | 0;
+        // l = (l + 1) | 0;
       }
     } else {
       // objs.forEach(obj => newObjs.push(obj));
-      let l = 0;
-      while (l < objs.length) {
+      // let l = 0;
+      for (let l = 0; l < objs.length; l = (l + 1) | 0) {
         newObjs.push(objs[l]);
-        l = (l + 1) | 0;
+        // l = (l + 1) | 0;
       }
     }
-    j = (j + 1) | 0;
+    // j = (j + 1) | 0;
   }
   console.timeEnd('gabageCollectorFastTuned');
   return newObjs;

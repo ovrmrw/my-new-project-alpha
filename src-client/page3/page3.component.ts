@@ -40,14 +40,17 @@ export class AppPage3Component implements OnInit, ComponentGuidelineUsingStore {
       });
 
     const titles = this.service.getTitles().reverse();
-    this.service.disposableSubscription = Observable.interval(20)
+    const intervalSubscription = Observable.interval(10)
       .subscribe(x => {
         if (titles.length > x) {
           console.log(titles[x]);
           this._$title = titles[x];
           this.cd.markForCheck();
-        }        
+        } else {
+          intervalSubscription.unsubscribe();
+        }
       });
+    this.service.disposableSubscription = intervalSubscription;
   }
 
   registerSubscriptionsOnlyOnce() {
