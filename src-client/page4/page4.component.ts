@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from '@
 
 import { AppPage4Service } from './page4.service';
 import { ComponentGuidelineUsingStore } from '../store';
-import { Translation } from '../types';
+import { Translation } from '../types.ref';
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Main Component

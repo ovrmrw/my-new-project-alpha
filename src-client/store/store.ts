@@ -24,8 +24,7 @@ export class Store {
   private subscriptions: SubscriptionObject[] = [];
   private _dispatcher$: Subject<any> = new Subject<any>(null);
   private _localStorageKeeper$: Subject<StateObject[]> = new Subject<StateObject[]>(null);
-  private _returner$: Subject<StateObject[]>;
-  private _serviceSubjects$: Subject<any>[] = [];
+  private _returner$: BehaviorSubject<StateObject[]>;
 
   constructor() {
     let ls: any = null;

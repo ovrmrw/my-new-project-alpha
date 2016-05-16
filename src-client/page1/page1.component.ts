@@ -3,7 +3,7 @@ import lodash from 'lodash';
 
 import { AppPage1Service } from './page1.service';
 import { appRoot } from '../../src-middle/utils';
-import { Credential, Translation } from '../types';
+import { Credential, Translation } from '../types.ref';
 import { ComponentGuidelineUsingStore } from '../store';
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -87,22 +87,24 @@ export class AppPage1Component implements OnInit, ComponentGuidelineUsingStore {
   }
 
   registerSubscriptionsEveryEntrance() {
-    this.service.requestCredential$$(appRoot + 'azureDataMarket.secret.json')
-      .subscribe(credential => { // Httpモジュールから流れるストリームをsubscribeしたときは一度nextしたら自動的にcompleteされる。
-        this.clientId = credential.ClientId;
-        this.clientSecret = credential.ClientSecret;
-        this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
-      });
-
     this.service.disposableSubscriptions = [
-      this.service.getTranslations$$(3)
+      this.service.requestCredential$$(appRoot + 'azureDataMarket.secret.json')
+        .subscribe(credential => { // Httpモジュールから流れるストリームをsubscribeしたときは一度nextしたら自動的にcompleteされる。
+          this.clientId = credential.ClientId;
+          this.clientSecret = credential.ClientSecret;
+          this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
+        }),
+
+      this.service.state.translations$$
+        .map(ary => ary.slice(0, 3))
         .subscribe(translations => {
           console.log('DetectChange: ' + (translations.length > 2 ? translations[2].translated : undefined) + ' -> ' + (translations.length > 1 ? translations[1].translated : undefined) + ' -> ' + (translations.length > 0 ? translations[0].translated : undefined) + ' on Page1');
           this._$translations = translations;
           this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
         }),
 
-      this.service.getPage2Titles$(3)
+      this.service.state.titles$
+        .map(ary => ary.slice(0, 3))
         .subscribe(titles => {
           console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page1');
           this._$title = titles[0];
@@ -127,7 +129,7 @@ export class AppPage1Component implements OnInit, ComponentGuidelineUsingStore {
   }
 
   set text(text) { this.service.setText(text); }
-  get text() { return this.service.getText(); }
+  get text() { return this.service.state.text; }
 
   // get title() { return this.service.getTitle(); }
 

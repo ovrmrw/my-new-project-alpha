@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 
 import { Store, StoreService } from '../store';
-import { AppPage1Service as AP1S, AppPage2Service as AP2S } from '../services';
-import { Translation } from '../types';
+import { AppPage1Service as AP1S, AppPage2Service as AP2S } from '../services.ref';
+import { Translation } from '../types.ref';
 
 @Injectable()
 export class AppPage4Service extends StoreService {
@@ -12,20 +12,15 @@ export class AppPage4Service extends StoreService {
 
   constructor(store: Store) {
     super(store);
-    this._state = new AppPage4State(store, this);
+    this._state = new AppPage4State(store);
   }
 }
 
 class AppPage4State {
-  text: string;
-  title: string;
-  text$: Observable<string>;
-  title$: Observable<string>;
-
-  constructor(private store: Store, private service: AppPage4Service) {
-    this.text = this.store.getState<string>(AP1S.TRANSLATION_TEXT_IDENTIFIER);
-    this.title = this.store.getState<string>(AP2S.PAGE_TITLE_IDENTIFIER);
-    this.text$ = this.store.getState$<string>(AP1S.TRANSLATION_TEXT_IDENTIFIER);
-    this.title$ = this.store.getState$<string>(AP2S.PAGE_TITLE_IDENTIFIER);
-  }
+  constructor(private store: Store) { }
+  get text() { return this.store.getState<string>(AP1S.TRANSLATION_TEXT_IDENTIFIER); }
+  get text$() { return this.store.getState$<string>(AP1S.TRANSLATION_TEXT_IDENTIFIER); }
+  
+  get title() { return this.store.getState<string>(AP2S.PAGE_TITLE_IDENTIFIER); }
+  get title$() { return this.store.getState$<string>(AP2S.PAGE_TITLE_IDENTIFIER); }
 }

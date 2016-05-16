@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 
 import { Store, StoreService } from '../store';
-import { AppPage1Service as AP1S, AppPage2Service as AP2S } from '../services';
-import { Translation } from '../types';
+import { AppPage1Service as AP1S, AppPage2Service as AP2S } from '../services.ref';
+import { Translation } from '../types.ref';
 
 @Injectable()
 export class AppPage3Service extends StoreService {
@@ -12,28 +12,15 @@ export class AppPage3Service extends StoreService {
 
   constructor(store: Store) {
     super(store);
-    this._state = new AppPage3State(store, this);
+    this._state = new AppPage3State(store);
   }
-
-  // Page1のServiceがセットした値を取得する。
-  // getPage1Texts(limit?: number) { return this.store.getStates<string>(AP1S.TRANSLATION_TEXT_IDENTIFIER, limit); }
-
-  // Page2のServiceがセットした値を取得する。
-  // getPage2Title() { return this.store.getState<string>(AP2S.PAGE_TITLE_IDENTIFIER); }
-  // getPage2Titles(limit?: number) { return this.store.getStates<string>(AP2S.PAGE_TITLE_IDENTIFIER, limit); }
-  // getPage2Titles$(limit?: number) { return this.store.getStates$<string>(AP2S.PAGE_TITLE_IDENTIFIER, limit); }
 }
 
 class AppPage3State {
-  texts: string[];
-  title: string;
-  titles: string[];
-  titles$: Observable<string[]>;
-
-  constructor(private store: Store, private service: AppPage3Service) {
-    this.texts = this.store.getStates<string>(AP1S.TRANSLATION_TEXT_IDENTIFIER);
-    this.title = this.store.getState<string>(AP2S.PAGE_TITLE_IDENTIFIER);
-    this.titles = this.store.getStates<string>(AP2S.PAGE_TITLE_IDENTIFIER);
-    this.titles$ = this.store.getStates$<string>(AP2S.PAGE_TITLE_IDENTIFIER);
-  }
+  constructor(private store: Store) { }
+  get texts() { return this.store.getStates<string>(AP1S.TRANSLATION_TEXT_IDENTIFIER); }
+  
+  get title() { return this.store.getState<string>(AP2S.PAGE_TITLE_IDENTIFIER); }
+  get titles() { return this.store.getStates<string>(AP2S.PAGE_TITLE_IDENTIFIER); }
+  get titles$() { return this.store.getStates$<string>(AP2S.PAGE_TITLE_IDENTIFIER); }
 }

@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from '@
 
 import { AppPage2Service } from './page2.service';
 import { ComponentGuidelineUsingStore } from '../store';
-import { Translation } from '../types';
+import { Translation } from '../types.ref';
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Main Component
@@ -35,12 +35,13 @@ export class AppPage2Component implements OnInit, ComponentGuidelineUsingStore {
 
   registerSubscriptionsEveryEntrance() {
     this.service.disposableSubscriptions = [
-      this.service.getTitles$(3)
+      this.service.state.titles$
         .subscribe(titles => {
           console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page2');
         }),
 
-      this.service.getPage1Translations$$(50)
+      this.service.state.translations$$
+        .map(ary => ary.slice(0, 30))
         .subscribe(translations => {
           console.log('DetectChange: ' + (translations.length > 2 ? translations[2].translated : undefined) + ' -> ' + (translations.length > 1 ? translations[1].translated : undefined) + ' -> ' + (translations.length > 0 ? translations[0].translated : undefined) + ' on Page2');
           this._$translations = translations;
@@ -57,7 +58,7 @@ export class AppPage2Component implements OnInit, ComponentGuidelineUsingStore {
   }
 
   set title(title: string) { this.service.setTitle(title); }
-  get title() { return this.service.getTitle(); }
+  get title() { return this.service.state.title; }
 
   onClickClearStates() {
     this.service.clearStatesAndLocalStorage();
