@@ -3,24 +3,26 @@ import { Http, Headers } from '@angular/http';
 
 import { Store, StoreService } from '../store';
 import { Credential, Translation, ITranslation } from '../types';
-import { AppPage2Service, PAGE_TITLE } from '../page2/page2.service';
+import { AppPage2Service as AP2S } from '../services';
 
 export const TRANSLATION_TEXT = 'translation-text';
 
 @Injectable()
 export class AppPage1Service extends StoreService {
+  static TRANSLATION_TEXT_IDENTIFIER = [TRANSLATION_TEXT, AppPage1Service];
+  
   constructor(
     store: Store,
     private http: Http
   ) { super(store); }
 
-  requestCredential$(jsonPath: string) {
+  requestCredential$$(jsonPath: string) {
     return this.http.get(jsonPath)
       .map(res => res.json() as Credential)
       .do(data => this.store.setState(data, [Credential, this]));
   }
 
-  requestTranslation$(text: string, clientId: string, clientSecret: string) {
+  requestTranslation$$(text: string, clientId: string, clientSecret: string) {
     const headers = new Headers({ 'Content-Type': 'application/json' });
     const body = JSON.stringify({ text, clientId, clientSecret } as ITranslation);
 
@@ -30,12 +32,12 @@ export class AppPage1Service extends StoreService {
   }
 
   getTranslations(limit?: number) { return this.store.getStates<Translation>([Translation, this], limit); }
-  getTranslations$(limit?: number) { return this.store.getStates$<Translation>([Translation, this], limit); }
+  getTranslations$$(limit?: number) { return this.store.getStates$<Translation>([Translation, this], limit); }
 
   setText(text: string) { this.store.setState(text, [TRANSLATION_TEXT, this]); }
   getText() { return this.store.getState<string>([TRANSLATION_TEXT, this]); }
 
   // Page2のServiceがセットした値を取得する。  
-  getPage2Title() { return this.store.getState<string>([PAGE_TITLE, AppPage2Service]); }
-  getPage2Titles$(limit?: number) { return this.store.getStates$<string>([PAGE_TITLE, AppPage2Service], limit); }
+  getPage2Title() { return this.store.getState<string>(AP2S.PAGE_TITLE_IDENTIFIER); }
+  getPage2Titles$(limit?: number) { return this.store.getStates$<string>(AP2S.PAGE_TITLE_IDENTIFIER, limit); }
 }

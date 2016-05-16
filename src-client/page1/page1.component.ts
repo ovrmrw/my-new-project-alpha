@@ -87,14 +87,14 @@ export class AppPage1Component implements OnInit, ComponentGuidelineUsingStore {
   }
 
   registerSubscriptionsEveryEntrance() {
-    this.service.requestCredential$(appRoot + 'azureDataMarket.secret.json')
+    this.service.requestCredential$$(appRoot + 'azureDataMarket.secret.json')
       .subscribe(credential => { // Httpモジュールから流れるストリームをsubscribeしたときは一度nextしたら自動的にcompleteされる。
         this.clientId = credential.ClientId;
         this.clientSecret = credential.ClientSecret;
         this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
       });
 
-    this.service.disposableSubscription = this.service.getTranslations$(3)
+    this.service.disposableSubscription = this.service.getTranslations$$(3)
       .subscribe(translations => {
         console.log('DetectChange: ' + (translations.length > 2 ? translations[2].translated : undefined) + ' -> ' + (translations.length > 1 ? translations[1].translated : undefined) + ' -> ' + (translations.length > 0 ? translations[0].translated : undefined) + ' on Page1');
         this._$translations = translations;
@@ -116,7 +116,7 @@ export class AppPage1Component implements OnInit, ComponentGuidelineUsingStore {
   }
 
   onClick(event: MouseEvent) {
-    this.service.requestTranslation$(this.text, this.clientId, this.clientSecret)
+    this.service.requestTranslation$$(this.text, this.clientId, this.clientSecret)
       .subscribe(translation => { // Httpモジュールから流れるストリームをsubscribeしたときは一度nextしたら自動的にcompleteされる。
         this._$translation = translation;
         this._$pairs.push({ original: translation.text, translated: translation.translated });
