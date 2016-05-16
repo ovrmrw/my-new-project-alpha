@@ -94,18 +94,20 @@ export class AppPage1Component implements OnInit, ComponentGuidelineUsingStore {
         this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
       });
 
-    this.service.disposableSubscription = this.service.getTranslations$$(3)
-      .subscribe(translations => {
-        console.log('DetectChange: ' + (translations.length > 2 ? translations[2].translated : undefined) + ' -> ' + (translations.length > 1 ? translations[1].translated : undefined) + ' -> ' + (translations.length > 0 ? translations[0].translated : undefined) + ' on Page1');
-        this._$translations = translations;
-        this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
-      });
+    this.service.disposableSubscriptions = [
+      this.service.getTranslations$$(3)
+        .subscribe(translations => {
+          console.log('DetectChange: ' + (translations.length > 2 ? translations[2].translated : undefined) + ' -> ' + (translations.length > 1 ? translations[1].translated : undefined) + ' -> ' + (translations.length > 0 ? translations[0].translated : undefined) + ' on Page1');
+          this._$translations = translations;
+          this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
+        }),
 
-    this.service.disposableSubscription = this.service.getPage2Titles$(3)
-      .subscribe(titles => {
-        console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page1');
-        this._$title = titles[0];
-      });
+      this.service.getPage2Titles$(3)
+        .subscribe(titles => {
+          console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page1');
+          this._$title = titles[0];
+        }),
+    ];
   }
 
   registerSubscriptionsOnlyOnce() {

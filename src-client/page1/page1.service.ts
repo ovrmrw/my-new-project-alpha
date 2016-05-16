@@ -5,10 +5,11 @@ import { Store, StoreService } from '../store';
 import { Credential, Translation, ITranslation } from '../types';
 import { AppPage2Service as AP2S } from '../services';
 
-export const TRANSLATION_TEXT = 'translation-text';
+const TRANSLATION_TEXT = 'translation-text';
 
 @Injectable()
 export class AppPage1Service extends StoreService {
+  static TRANSLATION_IDENTIFIER = [Translation, AppPage1Service];
   static TRANSLATION_TEXT_IDENTIFIER = [TRANSLATION_TEXT, AppPage1Service];
   
   constructor(

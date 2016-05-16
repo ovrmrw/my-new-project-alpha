@@ -10,19 +10,21 @@ export class AppPage4Service extends StoreService {
   private _state: AppPage4State;
   get state() { return this._state; }
 
-  constructor(
-    store: Store
-  ) {
+  constructor(store: Store) {
     super(store);
-    this._state = new AppPage4State(store);
+    this._state = new AppPage4State(store, this);
   }
 }
 
 class AppPage4State {
+  text: string;
+  title: string;
   text$: Observable<string>;
   title$: Observable<string>;
 
-  constructor(private store: Store) {
+  constructor(private store: Store, private service: AppPage4Service) {
+    this.text = this.store.getState<string>(AP1S.TRANSLATION_TEXT_IDENTIFIER);
+    this.title = this.store.getState<string>(AP2S.PAGE_TITLE_IDENTIFIER);
     this.text$ = this.store.getState$<string>(AP1S.TRANSLATION_TEXT_IDENTIFIER);
     this.title$ = this.store.getState$<string>(AP2S.PAGE_TITLE_IDENTIFIER);
   }
