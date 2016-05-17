@@ -1,4 +1,4 @@
-import { Store } from './store';
+import { ShuttleStore } from './store';
 
 export interface ComponentGuidelineUsingStore {
   // isSubscriptionsRegistered: boolean;

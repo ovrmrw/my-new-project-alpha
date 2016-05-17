@@ -6,7 +6,7 @@ import { AppPage1Component } from '../page1/page1.component';
 import { AppPage2Component } from '../page2/page2.component';
 import { AppPage3Component } from '../page3/page3.component';
 import { AppPage4Component } from '../page4/page4.component';
-import { Store } from '../store';
+import { ShuttleStore } from '../store';
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Top Component
@@ -24,7 +24,7 @@ import { Store } from '../store';
     <router-outlet></router-outlet>
   `,
   directives: [ROUTER_DIRECTIVES],
-  providers: [Store],
+  providers: [ShuttleStore],
   changeDetection: ChangeDetectionStrategy.Default
 })
 @RouteConfig([

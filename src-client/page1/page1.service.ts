@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 
-import { Store, StoreService, StateRule } from '../store';
+import { ShuttleStore, ShuttleStoreService, StateRule } from '../store';
 import { Credential, Translation, ITranslation } from '../types.ref';
 import { AppPage2Service as AP2S } from '../services.ref';
 
@@ -10,11 +10,11 @@ const TRANSLATION_TEXT = 'translation-text';
 ////////////////////////////////////////////////////////////////////////////
 // Service
 @Injectable()
-export class AppPage1Service extends StoreService {
+export class AppPage1Service extends ShuttleStoreService {
   static TRANSLATION_IDENTIFIER = [Translation, AppPage1Service];
   static TRANSLATION_TEXTINPUT_IDENTIFIER = [TRANSLATION_TEXT, AppPage1Service];
 
-  constructor(store: Store, private http: Http) { super(store); }
+  constructor(store: ShuttleStore, private http: Http) { super(store); }
 
   requestCredential$$(jsonPath: string) {
     return this.http.get(jsonPath)
@@ -40,7 +40,7 @@ const AP1S = AppPage1Service;
 // State (Declared only getters from Store)
 @Injectable()
 export class AppPage1State {
-  constructor(private store: Store) { }
+  constructor(private store: ShuttleStore) { }
   
   get text() { return this.store.getState<string>(AP1S.TRANSLATION_TEXTINPUT_IDENTIFIER); }
 

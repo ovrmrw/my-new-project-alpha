@@ -26,7 +26,7 @@ export class StateRule {
 }
 
 @Injectable()
-export class Store {
+export class ShuttleStore {
   private states: StateObject[];
   private subscriptions: SubscriptionObject[] = [];
   private rule: RuleObject = {};

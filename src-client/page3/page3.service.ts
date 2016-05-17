@@ -1,22 +1,22 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 
-import { Store, StoreService } from '../store';
+import { ShuttleStore, ShuttleStoreService } from '../store';
 import { AppPage1Service as AP1S, AppPage2Service as AP2S } from '../services.ref';
 import { Translation } from '../types.ref';
 
 ////////////////////////////////////////////////////////////////////////////
 // Service
 @Injectable()
-export class AppPage3Service extends StoreService {
-  constructor(store: Store) { super(store); }
+export class AppPage3Service extends ShuttleStoreService {
+  constructor(store: ShuttleStore) { super(store); }
 }
 
 ////////////////////////////////////////////////////////////////////////////
 // State (Declared only getters from Store)
 @Injectable()
 export class AppPage3State {
-  constructor(private store: Store) { }
+  constructor(private store: ShuttleStore) { }
   
   get texts() { return this.store.getStates<string>(AP1S.TRANSLATION_TEXTINPUT_IDENTIFIER); }
 
