@@ -1,32 +1,25 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 
-import { Store, StoreService } from '../store';
+import { Store, StoreService, StateRule } from '../store';
 import { Credential, Translation, ITranslation } from '../types.ref';
 import { AppPage2Service as AP2S } from '../services.ref';
 
 const TRANSLATION_TEXT = 'translation-text';
 
+////////////////////////////////////////////////////////////////////////////
+// Service
 @Injectable()
 export class AppPage1Service extends StoreService {
   static TRANSLATION_IDENTIFIER = [Translation, AppPage1Service];
-  static TRANSLATION_TEXT_IDENTIFIER = [TRANSLATION_TEXT, AppPage1Service];
+  static TRANSLATION_TEXTINPUT_IDENTIFIER = [TRANSLATION_TEXT, AppPage1Service];
 
-  private _state: AppPage1State;
-  get state() { return this._state; }
-
-  constructor(
-    store: Store,
-    private http: Http
-  ) {
-    super(store);
-    this._state = new AppPage1State(store);
-  }
+  constructor(store: Store, private http: Http) { super(store); }
 
   requestCredential$$(jsonPath: string) {
     return this.http.get(jsonPath)
       .map(res => res.json() as Credential)
-      .do(data => this.store.setState(data, [Credential, this]));
+      .do(data => this.store.setState(data, [Credential, this], new StateRule(1))); // new StateRule(1)は直近1つのStateだけStoreに保存するという意。
   }
 
   requestTranslation$$(text: string, clientId: string, clientSecret: string) {
@@ -38,18 +31,22 @@ export class AppPage1Service extends StoreService {
       .do(data => this.store.setState(data, AP1S.TRANSLATION_IDENTIFIER));
   }
 
-  setText(text: string) { this.store.setState(text, AP1S.TRANSLATION_TEXT_IDENTIFIER); }
+  setText(text: string) { this.store.setState(text, AP1S.TRANSLATION_TEXTINPUT_IDENTIFIER); }
 }
 
 const AP1S = AppPage1Service;
 
-class AppPage1State {
+////////////////////////////////////////////////////////////////////////////
+// State (Declared only getters from Store)
+@Injectable()
+export class AppPage1State {
   constructor(private store: Store) { }
-  get text() { return this.store.getState<string>(AP1S.TRANSLATION_TEXT_IDENTIFIER); }
+  
+  get text() { return this.store.getState<string>(AP1S.TRANSLATION_TEXTINPUT_IDENTIFIER); }
 
   get translations() { return this.store.getStates<Translation>(AP1S.TRANSLATION_IDENTIFIER); }
   get translations$$() { return this.store.getStates$<Translation>(AP1S.TRANSLATION_IDENTIFIER); }
 
-  get title() { return this.store.getState<string>(AP2S.PAGE_TITLE_IDENTIFIER); }
-  get titles$() { return this.store.getStates$<string>(AP2S.PAGE_TITLE_IDENTIFIER); }
+  get title() { return this.store.getState<string>(AP2S.PAGETITLE_IDENTIFIER); }
+  get titles$() { return this.store.getStates$<string>(AP2S.PAGETITLE_IDENTIFIER); }
 }

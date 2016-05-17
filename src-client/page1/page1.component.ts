@@ -1,7 +1,7 @@
 import { Component, Input, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from '@angular/core';
 import lodash from 'lodash';
 
-import { AppPage1Service } from './page1.service';
+import { AppPage1Service, AppPage1State } from './page1.service';
 import { appRoot } from '../../src-middle/utils';
 import { Credential, Translation } from '../types.ref';
 import { ComponentGuidelineUsingStore } from '../store';
@@ -68,7 +68,7 @@ class HistoryComponent {
     <sg-history [translations]="_$translations"></sg-history>
   `,
   directives: [TranslationComponent, PairsComponent, HistoryComponent],
-  providers: [AppPage1Service],
+  providers: [AppPage1Service, AppPage1State],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppPage1Component implements OnInit, ComponentGuidelineUsingStore {
@@ -78,6 +78,7 @@ export class AppPage1Component implements OnInit, ComponentGuidelineUsingStore {
 
   constructor(
     private service: AppPage1Service,
+    private state: AppPage1State,
     private cd: ChangeDetectorRef
   ) { }
   ngOnInit() {
@@ -95,7 +96,7 @@ export class AppPage1Component implements OnInit, ComponentGuidelineUsingStore {
           this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
         }),
 
-      this.service.state.translations$$
+      this.state.translations$$
         .map(ary => ary.slice(0, 3))
         .subscribe(translations => {
           console.log('DetectChange: ' + (translations.length > 2 ? translations[2].translated : undefined) + ' -> ' + (translations.length > 1 ? translations[1].translated : undefined) + ' -> ' + (translations.length > 0 ? translations[0].translated : undefined) + ' on Page1');
@@ -103,7 +104,7 @@ export class AppPage1Component implements OnInit, ComponentGuidelineUsingStore {
           this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
         }),
 
-      this.service.state.titles$
+      this.state.titles$
         .map(ary => ary.slice(0, 3))
         .subscribe(titles => {
           console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page1');
@@ -129,7 +130,7 @@ export class AppPage1Component implements OnInit, ComponentGuidelineUsingStore {
   }
 
   set text(text) { this.service.setText(text); }
-  get text() { return this.service.state.text; }
+  get text() { return this.state.text; }
 
   // get title() { return this.service.getTitle(); }
 

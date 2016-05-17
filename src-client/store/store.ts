@@ -14,14 +14,22 @@ import lodash from 'lodash';
 type Nameable = Function | Object | string;
 type StateObject = { string?: any };
 type SubscriptionObject = { string?: Subscription };
+type RuleObject = { string?: StateRule };
 
 const LOCAL_STORAGE_KEY = 'ovrmrw-localstorage-store';
-const MAX = 1000;
+const DEFAULT_MAX_HISTORY = 1000;
+
+export class StateRule {
+  constructor(public maxHistory?: number) {
+    this.maxHistory = maxHistory && maxHistory > 0 ? maxHistory : DEFAULT_MAX_HISTORY;
+  }
+}
 
 @Injectable()
 export class Store {
   private states: StateObject[];
   private subscriptions: SubscriptionObject[] = [];
+  private rule: RuleObject = {};
   private _dispatcher$: Subject<any> = new Subject<any>(null);
   private _localStorageKeeper$: Subject<StateObject[]> = new Subject<StateObject[]>(null);
   private _returner$: BehaviorSubject<StateObject[]>;
@@ -42,8 +50,8 @@ export class Store {
       // .debounceTime(100) // ここにdebounceTimeを入れると全てmarkForCheckが必要になる。Viewまで含めて途端に扱いが難しくなる。
       .subscribe(newState => {
         this.states.push(newState);
-        // this.states = gabageCollector(this.states);
-        this.states = gabageCollectorFastTuned(this.states);
+        // this.states = gabageCollector(this.states, this.rule);
+        this.states = gabageCollectorFastTuned(this.states, this.rule);
         // console.log('↓ states array on Store ↓');
         // console.log(this.states);
         this._returner$.next(this.states);
@@ -65,14 +73,17 @@ export class Store {
       });
   }
 
-  setState(data: any, nameablesAsIdentifier: Nameable[]): void {
+  setState(data: any, nameablesAsIdentifier: Nameable[], rule?: StateRule): void {
     const identifier = generateIdentifier(nameablesAsIdentifier);
     let obj = {};
     obj[identifier] = lodash.cloneDeep(data);
+    if (rule) { // Stateの管理に特別なルールが必要な場合はここでルールを保持する。
+      this.rule[identifier] = rule;
+    }
     this._dispatcher$.next(obj);
   }
 
-  getStates<T>(nameablesAsIdentifier: Nameable[], limit: number = MAX): T[] {
+  getStates<T>(nameablesAsIdentifier: Nameable[], limit: number = DEFAULT_MAX_HISTORY): T[] {
     const identifier = generateIdentifier(nameablesAsIdentifier);
     const states = this.states
       .filter(obj => obj && identifier in obj)
@@ -91,7 +102,7 @@ export class Store {
     return state;
   }
 
-  getStates$<T>(nameablesAsIdentifier: Nameable[], limit: number = MAX): Observable<T[]> {
+  getStates$<T>(nameablesAsIdentifier: Nameable[], limit: number = DEFAULT_MAX_HISTORY): Observable<T[]> {
     const identifier = generateIdentifier(nameablesAsIdentifier);
     return this._returner$
       .map(objs => {
@@ -154,7 +165,7 @@ export class Store {
 }
 
 
-function gabageCollector(stateObjects: StateObject[], maxElementsByKey: number = MAX) {
+function gabageCollector(stateObjects: StateObject[], ruleObject: RuleObject, maxElementsByKey: number = DEFAULT_MAX_HISTORY) {
   console.time('gabageCollector');
   const keys = stateObjects.filter(obj => obj && typeof obj === 'object').map(obj => Object.keys(obj)[0]);
   const uniqKeys = lodash.uniq(keys);
@@ -162,10 +173,11 @@ function gabageCollector(stateObjects: StateObject[], maxElementsByKey: number =
   let newObjs: StateObject[] = [];
 
   // key毎に保存最大数を超えたものをカットして新しい配列を作る。
-  uniqKeys.forEach(key => {
-    const objs = stateObjects.filter(obj => obj && key in obj);
-    if (objs.length > maxElementsByKey) {
-      objs.reverse().slice(0, maxElementsByKey).reverse().forEach(obj => newObjs.push(obj));
+  uniqKeys.forEach(identifier => {
+    const objs = stateObjects.filter(obj => obj && identifier in obj);
+    const maxHistory = identifier in ruleObject ? (<StateRule>ruleObject[identifier]).maxHistory : maxElementsByKey;
+    if (objs.length > maxHistory) {
+      objs.reverse().slice(0, maxHistory).reverse().forEach(obj => newObjs.push(obj));
     } else {
       objs.forEach(obj => newObjs.push(obj));
     }
@@ -176,7 +188,7 @@ function gabageCollector(stateObjects: StateObject[], maxElementsByKey: number =
 
 // gabageCollectorの処理速度が高速になるようにチューニングしたもの。10倍近く速い。
 // 参考: http://qiita.com/keroxp/items/67804391a8d65eb32cb8
-function gabageCollectorFastTuned(stateObjects: StateObject[], maxElementsByKey: number = MAX) {
+function gabageCollectorFastTuned(stateObjects: StateObject[], ruleObject: RuleObject, maxElementsByKey: number = DEFAULT_MAX_HISTORY) {
   // 最速0.38 ms
   console.time('gabageCollectorFastTuned');
   // const keys = stateObjects.filter(obj => obj && typeof obj === 'object').map(obj => Object.keys(obj)[0]);
@@ -204,17 +216,22 @@ function gabageCollectorFastTuned(stateObjects: StateObject[], maxElementsByKey:
   // let j = 0;
   for (let j = 0; j < uniqKeys.length; j = (j + 1) | 0) {
     // const objs = stateObjects.filter(obj => obj && uniqKeys[i] in obj);
+    const identifier = uniqKeys[j];
     let objs: StateObject[] = [];
     // let k = 0;
     for (let k = 0; k < stateObjects.length; k = (k + 1) | 0) {
-      if (uniqKeys[j] in stateObjects[k]) {
+      if (identifier in stateObjects[k]) {
         objs.push(stateObjects[k]);
       }
       // k = (k + 1) | 0;
     }
-    if (objs.length > maxElementsByKey) {
+
+    // StateRuleが保持されている場合、最大保存数を差し替える。
+    const maxHistory = identifier in ruleObject ? (<StateRule>ruleObject[identifier]).maxHistory : maxElementsByKey;
+
+    if (objs.length > maxHistory) {
       // objs.reverse().slice(0, maxElementsByKey).reverse().forEach(obj => newObjs.push(obj));
-      const ary = objs.reverse().slice(0, maxElementsByKey).reverse(); // TODO:もっとやりようがある。
+      const ary = objs.reverse().slice(0, maxHistory).reverse(); // TODO:もっとやりようがある。
       // let l = 0;
       for (let l = 0; l < ary.length; l = (l + 1) | 0) {
         newObjs.push(ary[l]);

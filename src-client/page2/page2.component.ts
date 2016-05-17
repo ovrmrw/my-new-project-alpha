@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from '@angular/core';
 
-import { AppPage2Service } from './page2.service';
+import { AppPage2Service, AppPage2State } from './page2.service';
 import { ComponentGuidelineUsingStore } from '../store';
 import { Translation } from '../types.ref';
 
@@ -17,7 +17,7 @@ import { Translation } from '../types.ref';
     <hr />
     <button (click)="onClickClearStates($event)">Clear States</button>
   `,
-  providers: [AppPage2Service],
+  providers: [AppPage2Service, AppPage2State],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppPage2Component implements OnInit, ComponentGuidelineUsingStore {
@@ -25,6 +25,7 @@ export class AppPage2Component implements OnInit, ComponentGuidelineUsingStore {
 
   constructor(
     private service: AppPage2Service,
+    private state: AppPage2State,
     private cd: ChangeDetectorRef
   ) { }
   ngOnInit() {
@@ -35,12 +36,12 @@ export class AppPage2Component implements OnInit, ComponentGuidelineUsingStore {
 
   registerSubscriptionsEveryEntrance() {
     this.service.disposableSubscriptions = [
-      this.service.state.titles$
+      this.state.titles$
         .subscribe(titles => {
           console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page2');
         }),
 
-      this.service.state.translations$$
+      this.state.translations$$
         .map(ary => ary.slice(0, 30))
         .subscribe(translations => {
           console.log('DetectChange: ' + (translations.length > 2 ? translations[2].translated : undefined) + ' -> ' + (translations.length > 1 ? translations[1].translated : undefined) + ' -> ' + (translations.length > 0 ? translations[0].translated : undefined) + ' on Page2');
@@ -58,7 +59,7 @@ export class AppPage2Component implements OnInit, ComponentGuidelineUsingStore {
   }
 
   set title(title: string) { this.service.setTitle(title); }
-  get title() { return this.service.state.title; }
+  get title() { return this.state.title; }
 
   onClickClearStates() {
     this.service.clearStatesAndLocalStorage();

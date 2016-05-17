@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from '@
 import { Observable } from 'rxjs/Rx';
 
 import { ComponentGuidelineUsingStore } from '../store';
-import { AppPage3Service } from './page3.service';
+import { AppPage3Service, AppPage3State } from './page3.service';
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Main Component
@@ -19,7 +19,7 @@ import { AppPage3Service } from './page3.service';
       {{_$text}}
     </div>
   `,
-  providers: [AppPage3Service],
+  providers: [AppPage3Service, AppPage3State],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppPage3Component implements OnInit, ComponentGuidelineUsingStore {
@@ -27,6 +27,7 @@ export class AppPage3Component implements OnInit, ComponentGuidelineUsingStore {
 
   constructor(
     private service: AppPage3Service,
+    private state: AppPage3State,
     private cd: ChangeDetectorRef
   ) { }
   ngOnInit() {
@@ -36,13 +37,13 @@ export class AppPage3Component implements OnInit, ComponentGuidelineUsingStore {
   }
 
   registerSubscriptionsEveryEntrance() {
-    const titleSubscription = this.service.state.titles$
+    const titleSubscription = this.state.titles$
       .subscribe(titles => {
         console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page3');
       });
 
-    const titles = this.service.state.titles.reverse();
-    const texts = this.service.state.texts.reverse();
+    const titles = this.state.titles.reverse();
+    const texts = this.state.texts.reverse();
     const intervalSubscription = Observable.interval(20)
       .subscribe(x => {
         if (titles.length > x) {
@@ -72,7 +73,7 @@ export class AppPage3Component implements OnInit, ComponentGuidelineUsingStore {
     AppPage3Component.isSubscriptionsRegistered = true;
   }
 
-  get title() { return this.service.state.title; }
+  get title() { return this.state.title; }
 
   // Observableにより更新される変数なので勝手に変更しないこと。;
   private _$title: string;
