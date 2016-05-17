@@ -19,12 +19,6 @@ type RuleObject = { string?: StateRule };
 const LOCAL_STORAGE_KEY = 'ovrmrw-localstorage-store';
 const DEFAULT_MAX_HISTORY = 1000;
 
-export class StateRule {
-  constructor(public maxHistory?: number) {
-    this.maxHistory = maxHistory && maxHistory > 0 ? maxHistory : DEFAULT_MAX_HISTORY;
-  }
-}
-
 @Injectable()
 export class ShuttleStore {
   private states: StateObject[];
@@ -276,4 +270,21 @@ function pickValueFromObject<T>(obj: { string?: T }): T {
   } catch (err) {
     // return obj as T;
   }
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+// StateRule Class
+export class StateRule {
+  maxHistory: number;
+  constructor(options: StateRuleOptions) {
+    const opts = options; // 変数名が長いので短くする。
+    if (opts.maxHistory && opts.maxHistory > 0) {
+      this.maxHistory = opts.maxHistory;
+    }
+  }
+}
+
+interface StateRuleOptions {
+  maxHistory?: number;
 }

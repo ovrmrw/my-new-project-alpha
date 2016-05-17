@@ -19,7 +19,7 @@ export class AppPage1Service extends ShuttleStoreService {
   requestCredential$$(jsonPath: string) {
     return this.http.get(jsonPath)
       .map(res => res.json() as Credential)
-      .do(data => this.store.setState(data, [Credential, this], new StateRule(1))); // new StateRule(1)は直近1つのStateだけStoreに保存するという意。
+      .do(data => this.store.setState(data, [Credential, this], new StateRule({ maxHistory: 1 }))); // new StateRule({ maxHistory: 1 })は直近1つのStateだけStoreに保存するという意。
   }
 
   requestTranslation$$(text: string, clientId: string, clientSecret: string) {
@@ -41,7 +41,7 @@ const AP1S = AppPage1Service;
 @Injectable()
 export class AppPage1State {
   constructor(private store: ShuttleStore) { }
-  
+
   get text() { return this.store.getState<string>(AP1S.TRANSLATION_TEXTINPUT_IDENTIFIER); }
 
   get translations() { return this.store.getStates<Translation>(AP1S.TRANSLATION_IDENTIFIER); }
