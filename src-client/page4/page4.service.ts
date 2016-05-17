@@ -17,10 +17,11 @@ export class AppPage4Service extends ShuttleStoreService {
 @Injectable()
 export class AppPage4State {
   constructor(private store: ShuttleStore) { }
-  
+
   get text() { return this.store.getState<string>(AP1S.TRANSLATION_TEXTINPUT_IDENTIFIER); }
   get text$() { return this.store.getState$<string>(AP1S.TRANSLATION_TEXTINPUT_IDENTIFIER); }
 
   get title() { return this.store.getState<string>(AP2S.PAGETITLE_IDENTIFIER); }
   get title$() { return this.store.getState$<string>(AP2S.PAGETITLE_IDENTIFIER); }
+  get titleStream$$() { return this.store.getStateStream$<string>(AP2S.PAGETITLE_IDENTIFIER, 1000, 10, true); }
 }

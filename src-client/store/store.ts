@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
-// import { Observable, Subject, BehaviorSubject, Subscription } from 'rxjs/Rx';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Subscription } from 'rxjs/Subscription';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/filter';
-import 'rxjs/add/operator/debounceTime';
+import { Observable, Subject, BehaviorSubject, Subscription } from 'rxjs/Rx';
+// import { Observable } from 'rxjs/Observable';
+// import { Subject } from 'rxjs/Subject';
+// import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+// import { Subscription } from 'rxjs/Subscription';
+// import { Scheduler } from 'rxjs/Scheduler';
+// import 'rxjs/add/operator/map';
+// import 'rxjs/add/operator/filter';
+// import 'rxjs/add/operator/debounceTime';
 // import 'rxjs/add/observable/from';
 // import 'rxjs/add/operator/do';
 import lodash from 'lodash';
@@ -77,14 +78,15 @@ export class ShuttleStore {
     this._dispatcher$.next(obj);
   }
 
-  getStates<T>(nameablesAsIdentifier: Nameable[], limit: number = DEFAULT_MAX_HISTORY): T[] {
+  getStates<T>(nameablesAsIdentifier: Nameable[], limit: number = DEFAULT_MAX_HISTORY, ascending?: boolean): T[] {
     const identifier = generateIdentifier(nameablesAsIdentifier);
     const states = this.states
       .filter(obj => obj && identifier in obj)
       .map(obj => pickValueFromObject(obj));
     if (states.length > 0) {
       const _limit = limit && limit > 0 ? limit : 1;
-      return states.reverse().slice(0, _limit) as T[];
+      const _states = states.reverse().slice(0, _limit);
+      return (ascending ? _states.reverse() : _states) as T[];
     } else {
       return [] as T[];
     }
@@ -96,7 +98,7 @@ export class ShuttleStore {
     return state;
   }
 
-  getStates$<T>(nameablesAsIdentifier: Nameable[], limit: number = DEFAULT_MAX_HISTORY): Observable<T[]> {
+  getStates$<T>(nameablesAsIdentifier: Nameable[], limit: number = DEFAULT_MAX_HISTORY, ascending?: boolean): Observable<T[]> {
     const identifier = generateIdentifier(nameablesAsIdentifier);
     return this._returner$
       .map(objs => {
@@ -107,7 +109,8 @@ export class ShuttleStore {
       })
       .map(states => {
         const _limit = limit && limit > 0 ? limit : 1;
-        return states.reverse().slice(0, _limit) as T[];
+        const _states = states.reverse().slice(0, _limit);
+        return (ascending ? _states.reverse() : _states) as T[];
       });
   }
 
@@ -115,6 +118,22 @@ export class ShuttleStore {
     return this.getStates$<T>(nameablesAsIdentifier, 1)
       .map(states => {
         return (states.length > 0 ? states[0] : null);
+      });
+  }
+
+  getStateStream$<T>(nameablesAsIdentifier: Nameable[], limit: number, interval: number, ascending?: boolean): Observable<T> {
+    const _limit = limit && limit > 0 ? limit : null;
+    const _interval = interval && interval > 0 ? interval : 1;
+    // const states = this.getStates<T>(nameablesAsIdentifier, _limit).reverse();
+    // return Observable.interval(_interval)
+    //   .filter(x => states.length > x)
+    //   .map(x => states[x]);
+    return this.getStates$<T>(nameablesAsIdentifier, _limit, ascending)
+    　.debounceTime(1)
+      .mergeMap(states => {
+        return Observable.interval(_interval)
+          .filter(x => states.length > x)
+          .map(x => states[x]);
       });
   }
 
@@ -142,8 +161,8 @@ export class ShuttleStore {
       });
     this.subscriptions = null;
     this.subscriptions = aliveSubscriptions;
-    console.log('↓ subscriptions array on Store ↓');
-    console.log(this.subscriptions);
+    // console.log('↓ subscriptions array on Store ↓');
+    // console.log(this.subscriptions);
   }
 
   clearStatesAndLocalStorage(): void {

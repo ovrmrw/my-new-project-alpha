@@ -28,6 +28,7 @@ export class AppPage2State {
 
   get title() { return this.store.getState<string>(AP2S.PAGETITLE_IDENTIFIER); }
   get titles$() { return this.store.getStates$<string>(AP2S.PAGETITLE_IDENTIFIER); }
+  get titleStream$$() { return this.store.getStateStream$<string>(AP2S.PAGETITLE_IDENTIFIER, 50, 10, true); }
 
   get translations$$() { return this.store.getStates$<Translation>(AP1S.TRANSLATION_IDENTIFIER); }
 }

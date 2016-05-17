@@ -16,6 +16,8 @@ import { Translation } from '../types.ref';
     <ul><li *ngFor="let t of _$translations">Japanese: {{t.text}} / English: {{t.translated}}</li></ul>
     <hr />
     <button (click)="onClickClearStates($event)">Clear States</button>
+    <hr />
+    <div>{{_$titleStream}}</div>
   `,
   providers: [AppPage2Service, AppPage2State],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -48,6 +50,10 @@ export class AppPage2Component implements OnInit, ComponentGuidelineUsingStore {
           this._$translations = translations;
           this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
         }),
+
+      this.state.titleStream$$
+        .do(title => this._$titleStream = title)
+        .subscribe(() => this.cd.markForCheck()),
     ];
   }
 
@@ -67,4 +73,5 @@ export class AppPage2Component implements OnInit, ComponentGuidelineUsingStore {
 
   // Observableにより更新される変数なので勝手に変更しないこと。
   private _$translations: Translation[];
+  private _$titleStream: string;
 }
