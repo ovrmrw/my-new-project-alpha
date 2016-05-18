@@ -37,33 +37,47 @@ export class AppPage3Component implements OnInit, ComponentGuidelineUsingStore {
   }
 
   registerSubscriptionsEveryEntrance() {
-    const titleSubscription = this.state.titles$
-      .subscribe(titles => {
-        console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page3');
-      });
+    // const titleSubscription = this.state.titles$
+    //   .subscribe(titles => {
+    //     console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page3');
+    //   });
 
-    const titles = this.state.titles.reverse();
-    const texts = this.state.texts.reverse();
-    const intervalSubscription = Observable.interval(20)
-      .subscribe(x => {
-        if (titles.length > x) {
-          console.log(titles[x]);
-          this._$title = titles[x];
-        }
+    // const titles = this.state.titles.reverse();
+    // const texts = this.state.texts.reverse();
+    // const intervalSubscription = Observable.interval(20)
+    //   .subscribe(x => {
+    //     if (titles.length > x) {
+    //       console.log(titles[x]);
+    //       this._$title = titles[x];
+    //     }
 
-        if (texts.length > x) {
-          console.log(texts[x]);
-          this._$text = texts[x];
-        }
+    //     if (texts.length > x) {
+    //       console.log(texts[x]);
+    //       this._$text = texts[x];
+    //     }
 
-        if (titles.length > x || texts.length > x) {
-          this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
-        } else {
-          intervalSubscription.unsubscribe(); // これ以上監視する必要がないのでunsubscribeする。
-        }
-      });
+    //     if (titles.length > x || texts.length > x) {
+    //       this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
+    //     } else {
+    //       intervalSubscription.unsubscribe(); // これ以上監視する必要がないのでunsubscribeする。
+    //     }
+    //   });
 
-    this.service.disposableSubscriptions = [titleSubscription, intervalSubscription];
+    // this.service.disposableSubscriptions = [titleSubscription, intervalSubscription];
+
+    this.service.disposableSubscriptions = [
+      this.state.titles$
+        .do(titles => console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page3'))
+        .subscribe(),
+
+      this.state.titleReplayStream$$
+        .do(title => this._$title = title)
+        .subscribe(() => this.cd.markForCheck()),
+
+      this.state.textReplayStream$$
+        .do(text => this._$text = text)
+        .subscribe(() => this.cd.markForCheck()),
+    ];
   }
 
   registerSubscriptionsOnlyOnce() {

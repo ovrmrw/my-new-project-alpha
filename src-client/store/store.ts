@@ -107,7 +107,7 @@ export class ShuttleStore {
         return objs.map(obj => pickValueFromObject(obj));
       })
       .map(states => {
-        const _limit = limit && limit > 0 ? limit : 1;
+        const _limit = limit && limit > 0 ? limit : DEFAULT_LIMIT;
         return states.reverse().slice(0, _limit) as T[];
       });
   }
@@ -120,13 +120,13 @@ export class ShuttleStore {
   }
 
   // ただの配列をovertimeな値のストリームに変換して流す。後続はinterval毎に配列の値を順々に受け取る。
-  getPresetReplayStream$<T>(nameablesAsIdentifier: Nameable[], limit: number, interval: number, ascending?: boolean): Observable<T> {
+  getPresetReplayStream$<T>(nameablesAsIdentifier: Nameable[], limit: number, interval: number, descending?: boolean): Observable<T> {
     const _interval = interval && interval > 0 ? interval : 1;
     return this.getStates$<T>(nameablesAsIdentifier, limit)
       .map(states => states.length > 0 ? states : [null]) // statesが空配列だとsubscribeまでストリームが流れないのでnull配列を作る。
-      .map(states => ascending ? states.reverse() : states)
+      .map(states => descending ? states : states.reverse())
       .switchMap(states => { // switchMapは次のストリームが流れてくると"今流れているストリームをキャンセルして"新しいストリームを流す。
-        return Observable.interval(_interval)
+        return Observable.timer(0, _interval)
           .map(x => states[x])
           .take(states.length);
       });
@@ -173,7 +173,7 @@ export class ShuttleStore {
 }
 
 
-function gabageCollector(stateObjects: StateObject[], ruleObject: RuleObject, maxElementsByKey: number = DEFAULT_LIMIT) {
+function gabageCollector(stateObjects: StateObject[], ruleObject: RuleObject, maxElementsByKey: number = DEFAULT_LIMIT): StateObject[] {
   console.time('gabageCollector');
   const keys = stateObjects.filter(obj => obj && typeof obj === 'object').map(obj => Object.keys(obj)[0]);
   const uniqKeys = lodash.uniq(keys);
@@ -196,7 +196,7 @@ function gabageCollector(stateObjects: StateObject[], ruleObject: RuleObject, ma
 
 // gabageCollectorの処理速度が高速になるようにチューニングしたもの。10倍近く速い。
 // 参考: http://qiita.com/keroxp/items/67804391a8d65eb32cb8
-function gabageCollectorFastTuned(stateObjects: StateObject[], ruleObject: RuleObject, limit: number = DEFAULT_LIMIT) {
+function gabageCollectorFastTuned(stateObjects: StateObject[], ruleObject: RuleObject, limit: number = DEFAULT_LIMIT): StateObject[] {
   // 最速0.38 ms
   console.time('gabageCollectorFastTuned');
   // const keys = stateObjects.filter(obj => obj && typeof obj === 'object').map(obj => Object.keys(obj)[0]);
