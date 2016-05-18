@@ -19,8 +19,6 @@ import { Translation } from '../types.ref';
     <hr />
     <h2>{{title$ | async}} - PAGE4</h2>
     <div>{{text$ | async}}</div>
-    <hr />
-    <div>{{_$titleStream}}</div>
   `,
   providers: [AppPage4Service, AppPage4State],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -43,15 +41,11 @@ export class AppPage4Component implements OnInit, ComponentGuidelineUsingStore {
     this.service.disposableSubscriptions = [
       // Observableなvalueをプリミティブに変換してViewにPUSHで流し込むやり方。
       this.state.text$
-        .subscribe(text => this._$text = text), // 普通はsubscribeの中でComponentの変数に値を渡す。
+        .subscribe(text => this._$text = text), // subscribeの中でComponentの変数に値を渡す。(side-effect)
 
       this.state.title$
-        .do(title => this._$title = title) // doの中でComponentの変数に値を渡しても良い。但しsubscribeは必要。
+        .do(title => this._$title = title) // doの中でComponentの変数に値を渡しても良い。但しsubscribeは必要。(side-effect)
         .subscribe(),
-
-      this.state.titleStream$$
-        .do(title => this._$titleStream = title)
-        .subscribe(() => this.cd.markForCheck()),
     ];
   }
 
@@ -69,10 +63,8 @@ export class AppPage4Component implements OnInit, ComponentGuidelineUsingStore {
   // ObservableなvalueをAsyncパイプを通してViewにPUSHで流し込むやり方。
   get title$() { return this.state.title$; }
   get text$() { return this.state.text$; }
-  // get _$titleStream() { return this.state.titleStream$$; } // なぜかうまく動かない。
 
   // Observableにより更新される変数なので勝手に変更しないこと。
   private _$title: string;
   private _$text: string;
-  private _$titleStream: string;
 }

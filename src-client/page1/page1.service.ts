@@ -19,7 +19,7 @@ export class AppPage1Service extends ShuttleStoreService {
   requestCredential$$(jsonPath: string) {
     return this.http.get(jsonPath)
       .map(res => res.json() as Credential)
-      .do(data => this.store.setState(data, [Credential, this], new StateRule({ maxHistory: 1 }))); // new StateRule({ maxHistory: 1 })は直近1つのStateだけStoreに保存するという意。
+      .do(data => this.store.setState(data, [Credential, this], new StateRule({ limit: 1 }))); // new StateRule({ limit: 1 })は直近1つのStateだけStoreに保存するという意。
   }
 
   requestTranslation$$(text: string, clientId: string, clientSecret: string) {

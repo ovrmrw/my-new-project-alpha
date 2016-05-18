@@ -23,5 +23,4 @@ export class AppPage4State {
 
   get title() { return this.store.getState<string>(AP2S.PAGETITLE_IDENTIFIER); }
   get title$() { return this.store.getState$<string>(AP2S.PAGETITLE_IDENTIFIER); }
-  get titleStream$$() { return this.store.getPresetReplayStream$<string>(AP2S.PAGETITLE_IDENTIFIER, 1000, 10, true); }
 }

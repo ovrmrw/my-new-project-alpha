@@ -17,7 +17,8 @@ import { Translation } from '../types.ref';
     <hr />
     <button (click)="onClickClearStates($event)">Clear States</button>
     <hr />
-    <div>{{_$titleStream}}</div>
+    <h3>Replay of title input history</h3>
+    <div>{{_$titleReplayStream}}</div>
   `,
   providers: [AppPage2Service, AppPage2State],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -39,22 +40,19 @@ export class AppPage2Component implements OnInit, ComponentGuidelineUsingStore {
   registerSubscriptionsEveryEntrance() {
     this.service.disposableSubscriptions = [
       this.state.titles$
-        .subscribe(titles => {
-          console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page2');
-        }),
+        .do(titles => console.log('DetectChange: ' + titles[2] + ' -> ' + titles[1] + ' -> ' + titles[0] + ' on Page2'))
+        .subscribe(),
 
       this.state.translations$$
         .map(ary => ary.slice(0, 30))
-        .subscribe(translations => {
-          console.log('DetectChange: ' + (translations.length > 2 ? translations[2].translated : undefined) + ' -> ' + (translations.length > 1 ? translations[1].translated : undefined) + ' -> ' + (translations.length > 0 ? translations[0].translated : undefined) + ' on Page2');
-          this._$translations = translations;
-          this.cd.markForCheck(); // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
-        }),
+        .do(translations => this._$translations = translations)
+        .do(translations => console.log('DetectChange: ' + (translations.length > 2 ? translations[2].translated : undefined) + ' -> ' + (translations.length > 1 ? translations[1].translated : undefined) + ' -> ' + (translations.length > 0 ? translations[0].translated : undefined) + ' on Page2'))
+        .subscribe(() => this.cd.markForCheck()), // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
 
-      this.state.titleStream$$
-        .do(title => this._$titleStream = title)
+      this.state.titleReplayStream$$
+        .do(title => this._$titleReplayStream = title)
         .do(title => console.log(title))
-        .subscribe(() => this.cd.markForCheck(), err => console.error(err), () => console.log('completed.')),
+        .subscribe(() => this.cd.markForCheck()), // OnPush環境ではWaitが発生する処理を待機するときにはmarkForCheckが必要。
     ];
   }
 
@@ -74,5 +72,5 @@ export class AppPage2Component implements OnInit, ComponentGuidelineUsingStore {
 
   // Observableにより更新される変数なので勝手に変更しないこと。
   private _$translations: Translation[];
-  private _$titleStream: string;
+  private _$titleReplayStream: string;
 }

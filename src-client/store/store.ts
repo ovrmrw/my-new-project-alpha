@@ -18,7 +18,7 @@ type SubscriptionObject = { string?: Subscription };
 type RuleObject = { string?: StateRule };
 
 const LOCAL_STORAGE_KEY = 'ovrmrw-localstorage-store';
-const DEFAULT_MAX_HISTORY = 1000;
+const DEFAULT_LIMIT = 1000;
 
 @Injectable()
 export class ShuttleStore {
@@ -78,7 +78,7 @@ export class ShuttleStore {
     this._dispatcher$.next(obj);
   }
 
-  getStates<T>(nameablesAsIdentifier: Nameable[], limit: number = DEFAULT_MAX_HISTORY): T[] {
+  getStates<T>(nameablesAsIdentifier: Nameable[], limit: number = DEFAULT_LIMIT): T[] {
     const identifier = generateIdentifier(nameablesAsIdentifier);
     const states = this.states
       .filter(obj => obj && identifier in obj)
@@ -97,7 +97,7 @@ export class ShuttleStore {
     return state;
   }
 
-  getStates$<T>(nameablesAsIdentifier: Nameable[], limit: number = DEFAULT_MAX_HISTORY): Observable<T[]> {
+  getStates$<T>(nameablesAsIdentifier: Nameable[], limit: number = DEFAULT_LIMIT): Observable<T[]> {
     const identifier = generateIdentifier(nameablesAsIdentifier);
     return this._returner$
       .map(objs => {
@@ -119,40 +119,18 @@ export class ShuttleStore {
       });
   }
 
+  // ただの配列をovertimeな値のストリームに変換して流す。後続はinterval毎に配列の値を順々に受け取る。
   getPresetReplayStream$<T>(nameablesAsIdentifier: Nameable[], limit: number, interval: number, ascending?: boolean): Observable<T> {
     const _interval = interval && interval > 0 ? interval : 1;
-    // const states = this.getStates<T>(nameablesAsIdentifier, _limit).reverse();
-    // return Observable.interval(_interval)
-    //   .filter(x => states.length > x)
-    //   .map(x => states[x]);
     return this.getStates$<T>(nameablesAsIdentifier, limit)
-      .debounceTime(500)
+      .map(states => states.length > 0 ? states : [null]) // statesが空配列だとsubscribeまでストリームが流れないのでnull配列を作る。
       .map(states => ascending ? states.reverse() : states)
-      .mergeMap(states => {
+      .switchMap(states => { // switchMapは次のストリームが流れてくると"今流れているストリームをキャンセルして"新しいストリームを流す。
         return Observable.interval(_interval)
           .map(x => states[x])
           .take(states.length);
-      });    
+      });
   }
-
-  // getPresetReplayStream$<T>(nameablesAsIdentifier: Nameable[], limit: number, interval: number, ascending?: boolean): Observable<T> {
-  //   const _interval = interval && interval > 0 ? interval : 1;
-  //   // return this.getStates$<T>(nameablesAsIdentifier, limit, ascending)
-  //   // 　.debounceTime(1)
-  //   //   .mergeMap(states => {
-  //   //     return Observable.interval(_interval)
-  //   //       .filter(x => states.length > x)
-  //   //       .map(x => states[x]);
-  //   //   });
-  //   return Observable
-  //     .zip(
-  //     this.getStates$<T>(nameablesAsIdentifier, limit),
-  //     (states) => {
-  //       return Observable.interval(_interval)
-  //         .map(x => states[x]);
-  //     }
-  //     ).map(x => x);
-  // }
 
   setDisposableSubscription(subscription: Subscription, nameablesAsIdentifier: Nameable[]): void {
     const identifier = generateIdentifier(nameablesAsIdentifier);
@@ -195,7 +173,7 @@ export class ShuttleStore {
 }
 
 
-function gabageCollector(stateObjects: StateObject[], ruleObject: RuleObject, maxElementsByKey: number = DEFAULT_MAX_HISTORY) {
+function gabageCollector(stateObjects: StateObject[], ruleObject: RuleObject, maxElementsByKey: number = DEFAULT_LIMIT) {
   console.time('gabageCollector');
   const keys = stateObjects.filter(obj => obj && typeof obj === 'object').map(obj => Object.keys(obj)[0]);
   const uniqKeys = lodash.uniq(keys);
@@ -205,7 +183,7 @@ function gabageCollector(stateObjects: StateObject[], ruleObject: RuleObject, ma
   // key毎に保存最大数を超えたものをカットして新しい配列を作る。
   uniqKeys.forEach(identifier => {
     const objs = stateObjects.filter(obj => obj && identifier in obj);
-    const maxHistory = identifier in ruleObject ? (<StateRule>ruleObject[identifier]).maxHistory : maxElementsByKey;
+    const maxHistory = identifier in ruleObject ? (<StateRule>ruleObject[identifier]).limit : maxElementsByKey;
     if (objs.length > maxHistory) {
       objs.reverse().slice(0, maxHistory).reverse().forEach(obj => newObjs.push(obj));
     } else {
@@ -218,15 +196,16 @@ function gabageCollector(stateObjects: StateObject[], ruleObject: RuleObject, ma
 
 // gabageCollectorの処理速度が高速になるようにチューニングしたもの。10倍近く速い。
 // 参考: http://qiita.com/keroxp/items/67804391a8d65eb32cb8
-function gabageCollectorFastTuned(stateObjects: StateObject[], ruleObject: RuleObject, maxElementsByKey: number = DEFAULT_MAX_HISTORY) {
+function gabageCollectorFastTuned(stateObjects: StateObject[], ruleObject: RuleObject, limit: number = DEFAULT_LIMIT) {
   // 最速0.38 ms
   console.time('gabageCollectorFastTuned');
   // const keys = stateObjects.filter(obj => obj && typeof obj === 'object').map(obj => Object.keys(obj)[0]);
   let keys: string[] = [];
   // let i = 0;
   for (let i = 0; i < stateObjects.length; i = (i + 1) | 0) {
-    if (typeof stateObjects[i] === 'object') {
-      keys.push(Object.keys(stateObjects[i])[0]);
+    const stateObject = stateObjects[i];
+    if (stateObject && typeof stateObject === 'object') {
+      keys.push(Object.keys(stateObject)[0]);
     }
     // i = (i + 1) | 0;
   }
@@ -257,11 +236,11 @@ function gabageCollectorFastTuned(stateObjects: StateObject[], ruleObject: RuleO
     }
 
     // StateRuleが保持されている場合、最大保存数を差し替える。
-    const maxHistory = identifier in ruleObject ? (<StateRule>ruleObject[identifier]).maxHistory : maxElementsByKey;
+    const _limit = identifier in ruleObject ? (<StateRule>ruleObject[identifier]).limit : limit;
 
-    if (objs.length > maxHistory) {
+    if (objs.length > _limit) {
       // objs.reverse().slice(0, maxElementsByKey).reverse().forEach(obj => newObjs.push(obj));
-      const ary = objs.reverse().slice(0, maxHistory).reverse(); // TODO:もっとやりようがある。
+      const ary = objs.reverse().slice(0, _limit).reverse(); // TODO:もっとやりようがある。
       // let l = 0;
       for (let l = 0; l < ary.length; l = (l + 1) | 0) {
         newObjs.push(ary[l]);
@@ -312,15 +291,15 @@ function pickValueFromObject<T>(obj: { string?: T }): T {
 ////////////////////////////////////////////////////////////////////////////
 // StateRule Class
 export class StateRule {
-  maxHistory: number;
+  limit: number;
   constructor(options: StateRuleOptions) {
-    const opts = options; // 変数名が長いので短くする。
-    if (opts.maxHistory && opts.maxHistory > 0) {
-      this.maxHistory = opts.maxHistory;
+    const opts = options; // 変数名を短縮。
+    if (opts.limit && opts.limit > 0) {
+      this.limit = opts.limit;
     }
   }
 }
 
 interface StateRuleOptions {
-  maxHistory?: number;
+  limit?: number;
 }
