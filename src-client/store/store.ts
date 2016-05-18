@@ -78,15 +78,14 @@ export class ShuttleStore {
     this._dispatcher$.next(obj);
   }
 
-  getStates<T>(nameablesAsIdentifier: Nameable[], limit: number = DEFAULT_MAX_HISTORY, ascending?: boolean): T[] {
+  getStates<T>(nameablesAsIdentifier: Nameable[], limit: number = DEFAULT_MAX_HISTORY): T[] {
     const identifier = generateIdentifier(nameablesAsIdentifier);
     const states = this.states
       .filter(obj => obj && identifier in obj)
       .map(obj => pickValueFromObject(obj));
     if (states.length > 0) {
       const _limit = limit && limit > 0 ? limit : 1;
-      const _states = states.reverse().slice(0, _limit);
-      return (ascending ? _states.reverse() : _states) as T[];
+      return states.reverse().slice(0, _limit) as T[];
     } else {
       return [] as T[];
     }
@@ -98,7 +97,7 @@ export class ShuttleStore {
     return state;
   }
 
-  getStates$<T>(nameablesAsIdentifier: Nameable[], limit: number = DEFAULT_MAX_HISTORY, ascending?: boolean): Observable<T[]> {
+  getStates$<T>(nameablesAsIdentifier: Nameable[], limit: number = DEFAULT_MAX_HISTORY): Observable<T[]> {
     const identifier = generateIdentifier(nameablesAsIdentifier);
     return this._returner$
       .map(objs => {
@@ -109,8 +108,7 @@ export class ShuttleStore {
       })
       .map(states => {
         const _limit = limit && limit > 0 ? limit : 1;
-        const _states = states.reverse().slice(0, _limit);
-        return (ascending ? _states.reverse() : _states) as T[];
+        return states.reverse().slice(0, _limit) as T[];
       });
   }
 
@@ -121,21 +119,40 @@ export class ShuttleStore {
       });
   }
 
-  getStateStream$<T>(nameablesAsIdentifier: Nameable[], limit: number, interval: number, ascending?: boolean): Observable<T> {
-    const _limit = limit && limit > 0 ? limit : null;
+  getPresetReplayStream$<T>(nameablesAsIdentifier: Nameable[], limit: number, interval: number, ascending?: boolean): Observable<T> {
     const _interval = interval && interval > 0 ? interval : 1;
     // const states = this.getStates<T>(nameablesAsIdentifier, _limit).reverse();
     // return Observable.interval(_interval)
     //   .filter(x => states.length > x)
     //   .map(x => states[x]);
-    return this.getStates$<T>(nameablesAsIdentifier, _limit, ascending)
-    　.debounceTime(1)
+    return this.getStates$<T>(nameablesAsIdentifier, limit)
+      .debounceTime(500)
+      .map(states => ascending ? states.reverse() : states)
       .mergeMap(states => {
         return Observable.interval(_interval)
-          .filter(x => states.length > x)
-          .map(x => states[x]);
-      });
+          .map(x => states[x])
+          .take(states.length);
+      });    
   }
+
+  // getPresetReplayStream$<T>(nameablesAsIdentifier: Nameable[], limit: number, interval: number, ascending?: boolean): Observable<T> {
+  //   const _interval = interval && interval > 0 ? interval : 1;
+  //   // return this.getStates$<T>(nameablesAsIdentifier, limit, ascending)
+  //   // 　.debounceTime(1)
+  //   //   .mergeMap(states => {
+  //   //     return Observable.interval(_interval)
+  //   //       .filter(x => states.length > x)
+  //   //       .map(x => states[x]);
+  //   //   });
+  //   return Observable
+  //     .zip(
+  //     this.getStates$<T>(nameablesAsIdentifier, limit),
+  //     (states) => {
+  //       return Observable.interval(_interval)
+  //         .map(x => states[x]);
+  //     }
+  //     ).map(x => x);
+  // }
 
   setDisposableSubscription(subscription: Subscription, nameablesAsIdentifier: Nameable[]): void {
     const identifier = generateIdentifier(nameablesAsIdentifier);

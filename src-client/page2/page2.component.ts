@@ -53,7 +53,8 @@ export class AppPage2Component implements OnInit, ComponentGuidelineUsingStore {
 
       this.state.titleStream$$
         .do(title => this._$titleStream = title)
-        .subscribe(() => this.cd.markForCheck()),
+        .do(title => console.log(title))
+        .subscribe(() => this.cd.markForCheck(), err => console.error(err), () => console.log('completed.')),
     ];
   }
 
